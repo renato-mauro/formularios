@@ -1,0 +1,20 @@
+{
+  "name": "@formularios/web",
+  "version": "0.2.0",
+  "description": "Interface web para gerenciar projetos de formulários (armazenamento local, zip de projeto e de HTMLs).",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./project": "./src/project.js",
+    "./zip": "./src/zip.js"
+  },
+  "dependencies": {
+    "@formularios/gerador": "0.2.0",
+    "@formularios/runtime": "0.2.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "node --test"
+  },
+  "license": "UNLICENSED"
+}

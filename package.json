@@ -1,0 +1,23 @@
+{
+  "name": "formularios",
+  "version": "0.2.0",
+  "description": "Formulários HTML5 (Bootstrap) a partir de uma especificação em texto simples (.form): gerador, interface web, runtime e CLI.",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "packages/runtime",
+    "packages/gerador",
+    "packages/web",
+    "packages/cli"
+  ],
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "test": "node --test 'packages/*/test/*.test.js'",
+    "build": "npm run build -w @formularios/web",
+    "exemplo": "node -e \"require('node:fs').rmSync('examples/saida', { recursive: true, force: true })\" && node packages/cli/bin/formularios.js build examples/clientes examples/saida"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "UNLICENSED"
+}

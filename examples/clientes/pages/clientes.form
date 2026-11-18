@@ -1,0 +1,21 @@
+-Cadastro de Clientes
+--Dados Pessoais{pessoais}
++pessoa
+--Endereço Residencial{residencial}
++endereco
+--Endereço Comercial{comercial}
++endereco
+--Contato no trabalho{contato}
+Agência: 0000   Ramal: 9999   Horário: hh:mm
+--Sexo*
+(M) Masculino
+(F) Feminino
+( ) Prefiro não informar
+--Interesses
+[ESP] Esportes
+[MUS] Música
+--Observações{obs}
+______________________________________________________________
+______________________________________________________________
+______________________________________________________________
+[ ] Aceito os termos de uso{aceite}*

@@ -1,0 +1,25 @@
+{
+  "name": "@formularios/cli",
+  "version": "0.2.0",
+  "description": "CLI em lote: gera os formulários de uma pasta (ou do zip de projeto da interface web) em outra pasta.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "formularios": "bin/formularios.js"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "dependencies": {
+    "@formularios/gerador": "0.2.0",
+    "@formularios/runtime": "0.2.0"
+  },
+  "devDependencies": {
+    "@formularios/web": "0.2.0"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "UNLICENSED"
+}

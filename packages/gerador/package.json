@@ -1,0 +1,20 @@
+{
+  "name": "@formularios/gerador",
+  "version": "0.2.0",
+  "description": "Gerador de formulários: texto .form -> HTML. Agnóstico de ambiente (sem DOM, sem Node).",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src"
+  ],
+  "dependencies": {
+    "@formularios/runtime": "0.2.0"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "UNLICENSED"
+}

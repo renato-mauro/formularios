@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastro de Clientes</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <script type="module" src="clientes.js"></script>
+</head>
+<body class="bg-body-tertiary">
+  <main class="container py-4">
+    <form class="bg-body border rounded-3 p-4" id="clientes" novalidate>
+      <h1 class="h3 mb-4">Cadastro de Clientes</h1>
+
+      <!-- Componente pessoa: Dados Pessoais -->
+      <fieldset class="mb-4" name="pessoais" data-component="pessoa">
+        <legend class="h5 pb-2 border-bottom">Dados Pessoais</legend>
+        <div class="row g-3 mb-3">
+          <div class="col-12">
+            <label class="form-label" for="pessoais-nome">Nome <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="pessoais-nome" name="pessoais.nome" required>
+          </div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-5">
+            <label class="form-label" for="pessoais-cpf">CPF <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="pessoais-cpf" name="pessoais.cpf" data-mask="999.999.999-99" inputmode="numeric" maxlength="14" required>
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="pessoais-nascimento">Nascimento <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="pessoais-nascimento" name="pessoais.nascimento" data-mask="dd/mm/aaaa" placeholder="dd/mm/aaaa" inputmode="numeric" maxlength="10" required>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label" for="pessoais-salario">Salário</label>
+            <div class="input-group">
+              <span class="input-group-text">R$</span>
+              <input type="text" class="form-control text-end" id="pessoais-salario" name="pessoais.salario" data-mask="R$" inputmode="decimal">
+            </div>
+          </div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-7">
+            <label class="form-label" for="pessoais-e_mail">E-mail</label>
+            <input type="email" class="form-control" id="pessoais-e_mail" name="pessoais.e_mail">
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="pessoais-telefone">Telefone</label>
+            <input type="text" class="form-control" id="pessoais-telefone" name="pessoais.telefone" data-mask="(99) 99999-9999" inputmode="numeric" maxlength="15">
+          </div>
+          <div class="col-12 col-md-1">
+            <label class="form-label" for="pessoais-idade">Idade</label>
+            <input type="text" class="form-control text-end" id="pessoais-idade" name="pessoais.idade" data-mask="999" inputmode="numeric" maxlength="4">
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Componente endereco: Endereço Residencial -->
+      <fieldset class="mb-4" name="residencial" data-component="endereco">
+        <legend class="h5 pb-2 border-bottom">Endereço Residencial</legend>
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-7">
+            <label class="form-label" for="residencial-logradouro">Endereço <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="residencial-logradouro" name="residencial.logradouro" required>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label" for="residencial-numero">Nº <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="residencial-numero" name="residencial.numero" required>
+          </div>
+          <div class="col-12 col-md-2">
+            <label class="form-label" for="residencial-complemento">Complemento</label>
+            <input type="text" class="form-control" id="residencial-complemento" name="residencial.complemento">
+          </div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="residencial-bairro">Bairro</label>
+            <input type="text" class="form-control" id="residencial-bairro" name="residencial.bairro">
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label" for="residencial-cidade">Cidade</label>
+            <input type="text" class="form-control" id="residencial-cidade" name="residencial.cidade">
+          </div>
+          <div class="col-12 col-md-2">
+            <label class="form-label" for="residencial-estado">Estado</label>
+            <select class="form-select" id="residencial-estado" name="residencial.estado" data-list="estados">
+              <option value="">Selecione…</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label" for="residencial-cep">CEP</label>
+            <input type="text" class="form-control" id="residencial-cep" name="residencial.cep" data-mask="99999-999" inputmode="numeric" maxlength="9">
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Componente endereco: Endereço Comercial -->
+      <fieldset class="mb-4" name="comercial" data-component="endereco">
+        <legend class="h5 pb-2 border-bottom">Endereço Comercial</legend>
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-7">
+            <label class="form-label" for="comercial-logradouro">Endereço <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="comercial-logradouro" name="comercial.logradouro" required>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label" for="comercial-numero">Nº <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="comercial-numero" name="comercial.numero" required>
+          </div>
+          <div class="col-12 col-md-2">
+            <label class="form-label" for="comercial-complemento">Complemento</label>
+            <input type="text" class="form-control" id="comercial-complemento" name="comercial.complemento">
+          </div>
+        </div>
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="comercial-bairro">Bairro</label>
+            <input type="text" class="form-control" id="comercial-bairro" name="comercial.bairro">
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label" for="comercial-cidade">Cidade</label>
+            <input type="text" class="form-control" id="comercial-cidade" name="comercial.cidade">
+          </div>
+          <div class="col-12 col-md-2">
+            <label class="form-label" for="comercial-estado">Estado</label>
+            <select class="form-select" id="comercial-estado" name="comercial.estado" data-list="estados">
+              <option value="">Selecione…</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label" for="comercial-cep">CEP</label>
+            <input type="text" class="form-control" id="comercial-cep" name="comercial.cep" data-mask="99999-999" inputmode="numeric" maxlength="9">
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Seção: Contato no trabalho -->
+      <fieldset class="mb-4" name="contato">
+        <legend class="h5 pb-2 border-bottom">Contato no trabalho</legend>
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="contato-agencia">Agência</label>
+            <input type="text" class="form-control" id="contato-agencia" name="contato.agencia" data-mask="0000" inputmode="numeric" maxlength="4">
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="contato-ramal">Ramal</label>
+            <input type="text" class="form-control text-end" id="contato-ramal" name="contato.ramal" data-mask="9999" inputmode="numeric" maxlength="5">
+          </div>
+          <div class="col-12 col-md-4">
+            <label class="form-label" for="contato-horario">Horário</label>
+            <input type="text" class="form-control" id="contato-horario" name="contato.horario" data-mask="hh:mm" placeholder="hh:mm" inputmode="numeric" maxlength="5">
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- Opções: Sexo -->
+      <fieldset class="mb-4">
+        <legend class="h5 pb-2 border-bottom">Sexo <span class="text-danger">*</span></legend>
+        <div class="form-check">
+          <input type="radio" class="form-check-input" id="sexo-1" name="sexo" value="M" required>
+          <label class="form-check-label" for="sexo-1">Masculino</label>
+        </div>
+        <div class="form-check">
+          <input type="radio" class="form-check-input" id="sexo-2" name="sexo" value="F" required>
+          <label class="form-check-label" for="sexo-2">Feminino</label>
+        </div>
+        <div class="form-check">
+          <input type="radio" class="form-check-input" id="sexo-3" name="sexo" value="Prefiro não informar" required>
+          <label class="form-check-label" for="sexo-3">Prefiro não informar</label>
+        </div>
+      </fieldset>
+
+      <!-- Seleção múltipla: Interesses -->
+      <fieldset class="mb-4">
+        <legend class="h5 pb-2 border-bottom">Interesses</legend>
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="interesses-1" name="interesses" value="ESP">
+          <label class="form-check-label" for="interesses-1">Esportes</label>
+        </div>
+        <div class="form-check">
+          <input type="checkbox" class="form-check-input" id="interesses-2" name="interesses" value="MUS">
+          <label class="form-check-label" for="interesses-2">Música</label>
+        </div>
+      </fieldset>
+
+      <!-- Texto longo: Observações -->
+      <div class="mb-4">
+        <label class="form-label d-block h5 pb-2 border-bottom" for="obs">Observações</label>
+        <textarea class="form-control" id="obs" name="obs" rows="3"></textarea>
+      </div>
+      <div class="row g-3 mb-3">
+        <div class="col-12 d-flex align-items-end">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="aceite" name="aceite" required>
+            <label class="form-check-label" for="aceite">Aceito os termos de uso <span class="text-danger">*</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mt-2" data-buttons>
+        <button type="button" class="btn btn-primary" data-action="enviar">Enviar</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

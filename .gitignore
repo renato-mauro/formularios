@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+# gerado por npm run build (o GitHub Actions monta e publica no Pages)
+packages/web/dist/
+# cópia antiga do monorepo (2026-10-20), substituída pela raiz
+repo/

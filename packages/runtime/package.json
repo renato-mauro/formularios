@@ -1,0 +1,21 @@
+{
+  "name": "@formularios/runtime",
+  "version": "0.2.0",
+  "description": "Runtime dos formulários: máscaras, validação, callbacks e coleta/preenchimento de JSON. ES module, sem dependências.",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": {
+      "types": "./src/forms.d.ts",
+      "default": "./src/forms.js"
+    },
+    "./masks": "./src/masks.js"
+  },
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "UNLICENSED"
+}
