@@ -82,6 +82,10 @@ Para publicar a interface num site estático:
 npm run build      # gera packages/web/dist (copie a pasta inteira)
 ```
 
+No GitHub, o workflow [`pages.yml`](.github/workflows/pages.yml) faz isso a cada
+push na `main`: roda os testes, monta o `dist` e publica só a interface no GitHub
+Pages (Settings → Pages → Source: GitHub Actions).
+
 ## CLI em lote
 
 ```bash

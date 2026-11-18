@@ -1,16 +1,15 @@
 # agentes.md — Gerador de Formulários a partir de Texto Simples
 
 > Instruções para o agente de código (Claude Code) construir a ferramenta.
-> **Versão 0.8** — incorpora as respostas das rodadas 1 a 4
-> (`respostas-rodada-1.md` a `respostas-rodada-4.md`), a divisão em quatro
+> **Versão 0.8** — incorpora as respostas das rodadas de perguntas 1 a 4, a divisão em quatro
 > pacotes num monorepo (2026-10-20) e os **componentes** (2026-10-21: páginas e
 > componentes em pastas fixas, inclusão `+nome`, botões vindos das ações do JS) e
 > as funções prontas `utils` do runtime (2026-10-22, §8.11).
 > **Implementada**; este arquivo é a especificação que o código segue. Não há
 > compatibilidade com o formato anterior (botões no `.form`, `{nome}` no título,
 > zip de projeto formato 1).
-> Itens marcados **[PENDENTE En]** aguardam a questão n do `duvidas.md` (rodada 5);
-> até lá, vale o que está descrito aqui (e implementado).
+> Itens marcados **[PENDENTE En]** são decisões ainda em aberto (questão n da
+> rodada 5); até lá, vale o que está descrito aqui (e implementado).
 > Itens marcados **[RODADA FUTURA]** não devem ser implementados agora, mas o
 > desenho não pode impedi-los.
 
@@ -1109,7 +1108,7 @@ packages/web/                     # P2 @formularios/web
   src/store.js                    #   localStorage
   src/preview.js                  #   documento da pré-visualização e módulos dos componentes
   src/zip.js                      #   zip (CompressionStream)
-  scripts/build.js                #   -> dist/
+  scripts/build.js                #   -> dist/ (fora do git)
 packages/cli/                     # P4 @formularios/cli
   bin/formularios.js              #   comando
   src/input.js                    #   pasta ou zip do projeto -> arquivos
@@ -1119,7 +1118,8 @@ packages/*/test/                  # node --test
 scripts/serve.js                  # servidor local
 examples/clientes/                # exemplo da §3.1: pages/clientes.form e .js, components/ (pessoa,
                                   #   endereco, com o JS de cada um), estados.json
-examples/saida/                   # gerado (npm run exemplo)
+examples/saida/                   # gerado (npm run exemplo; fora do git)
+.github/workflows/pages.yml       # publica packages/web/dist no GitHub Pages a cada push na main
 ```
 
 ---
