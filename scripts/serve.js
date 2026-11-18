@@ -1,13 +1,18 @@
 // Servidor estático mínimo para desenvolvimento (sem dependências): serve o
 // monorepo inteiro; "/" abre a interface web (packages/web).
 // Uso: npm start   (ou: node scripts/serve.js, PORT=3000 node scripts/serve.js)
+// Com --pages, serve só packages/web/dist em /formularios/, como o GitHub Pages
+// (npm run pages: testa, monta o dist e serve).
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const PAGES = process.argv.includes('--pages');
+const ROOT = PAGES ? path.join(REPO, 'packages/web/dist') : REPO;
+const BASE = PAGES ? '/formularios/' : '/'; // no Pages, o site fica numa subpasta
 const PORT = Number(process.env.PORT) || 8080;
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -20,8 +25,9 @@ const TYPES = {
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  if (url.pathname === '/') return redirect(res, '/packages/web/');
-  const file = path.join(ROOT, decodeURIComponent(url.pathname));
+  if (url.pathname === '/' || `${url.pathname}/` === BASE) return redirect(res, PAGES ? BASE : '/packages/web/');
+  if (!url.pathname.startsWith(BASE)) return send(res, 404, 'Não encontrado');
+  const file = path.join(ROOT, decodeURIComponent(url.pathname.slice(BASE.length - 1)));
   if (!file.startsWith(ROOT)) return send(res, 403, 'Proibido');
   try {
     const info = await stat(file);
@@ -59,6 +65,11 @@ function send(res, status, text) {
 }
 
 server.listen(PORT, () => {
+  if (PAGES) {
+    console.log(`Como no GitHub Pages: http://localhost:${PORT}${BASE}`);
+    console.log('Ctrl+C para parar.');
+    return;
+  }
   console.log(`Servidor em http://localhost:${PORT}`);
   console.log(`  Interface web:    http://localhost:${PORT}/packages/web/`);
   console.log(`  Exemplo gerado:   http://localhost:${PORT}/examples/saida/clientes.html (npm run exemplo)`);

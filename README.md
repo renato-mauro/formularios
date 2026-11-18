@@ -82,6 +82,12 @@ Para publicar a interface num site estático:
 npm run build      # gera packages/web/dist (copie a pasta inteira)
 ```
 
+Para ver antes de enviar exatamente o que vai para o Pages:
+
+```bash
+npm run pages      # testa, monta o dist e serve só ele em http://localhost:8080/formularios/
+```
+
 No GitHub, o workflow [`pages.yml`](.github/workflows/pages.yml) faz isso a cada
 push na `main`: roda os testes, monta o `dist` e publica só a interface no GitHub
 Pages (Settings → Pages → Source: GitHub Actions).
