@@ -15,6 +15,7 @@
     "test": "node --test 'packages/*/test/*.test.js'",
     "build": "npm run build -w @formularios/web",
     "pages": "npm test && npm run build && node scripts/serve.js --pages",
+    "publicar": "node scripts/publicar.js",
     "exemplo": "node -e \"require('node:fs').rmSync('examples/saida', { recursive: true, force: true })\" && node packages/cli/bin/formularios.js build examples/clientes examples/saida"
   },
   "engines": {

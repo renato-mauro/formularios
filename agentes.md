@@ -1115,11 +1115,11 @@ packages/cli/                     # P4 @formularios/cli
   src/plan.js                     #   o que gravar
   src/zip.js                      #   leitor de zip (node:zlib)
 packages/*/test/                  # node --test
-scripts/serve.js                  # servidor local
+scripts/serve.js                  # servidor local (--pages: só o dist, em /formularios/)
 examples/clientes/                # exemplo da §3.1: pages/clientes.form e .js, components/ (pessoa,
                                   #   endereco, com o JS de cada um), estados.json
 examples/saida/                   # gerado (npm run exemplo; fora do git)
-.github/workflows/pages.yml       # publica packages/web/dist no GitHub Pages a cada push na main
+scripts/publicar.js               # npm run publicar: dist -> branch gh-pages (GitHub Pages) e push
 ```
 
 ---

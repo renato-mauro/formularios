@@ -82,15 +82,17 @@ Para publicar a interface num site estático:
 npm run build      # gera packages/web/dist (copie a pasta inteira)
 ```
 
-Para ver antes de enviar exatamente o que vai para o Pages:
+No GitHub Pages (sem GitHub Actions), a interface fica no branch `gh-pages`, que
+guarda só o conteúdo do `dist`:
 
 ```bash
-npm run pages      # testa, monta o dist e serve só ele em http://localhost:8080/formularios/
+npm run pages      # confere: testa, monta o dist e serve só ele em http://localhost:8080/formularios/
+npm run publicar   # publica: testa, monta o dist, grava no gh-pages e dá push
 ```
 
-No GitHub, o workflow [`pages.yml`](.github/workflows/pages.yml) faz isso a cada
-push na `main`: roda os testes, monta o `dist` e publica só a interface no GitHub
-Pages (Settings → Pages → Source: GitHub Actions).
+O `publicar` exige tudo commitado (o site corresponde a um commit do código) e não
+mexe no branch atual. No GitHub: Settings → Pages → Deploy from a branch →
+`gh-pages` / `(root)`.
 
 ## CLI em lote
 
