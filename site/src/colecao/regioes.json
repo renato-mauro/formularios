@@ -1,7 +1,0 @@
-[
-  { "value": "N", "label": "Norte" },
-  { "value": "NE", "label": "Nordeste" },
-  { "value": "CO", "label": "Centro-Oeste" },
-  { "value": "SE", "label": "Sudeste" },
-  { "value": "S", "label": "Sul" }
-]
