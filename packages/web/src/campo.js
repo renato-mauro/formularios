@@ -96,7 +96,7 @@ export function textoDoCampo(o) {
     else if (t.id === 'decimal') spec = `${'9'.repeat(n(o.inteiros, 7, 1, 15, 'dígitos inteiros'))}.${'9'.repeat(n(o.decimais, 2, 1, 6, 'casas decimais'))}`;
     else if (t.id === 'lista') {
       const lista = String(o.lista ?? '').trim() || nomePadrao(rotulo);
-      if (!/^\w+$/.test(lista)) return { texto: '', erro: 'o nome da lista só pode ter letras sem acento, números e _' };
+      if (!/^[A-Za-z_](?:[\w-]*\w)?$/.test(lista)) return { texto: '', erro: 'o nome da lista só pode ter letras sem acento, números, _ e -' };
       spec = `@${lista}`;
     } else if (t.id === 'mascara') {
       spec = String(o.mascara ?? '').trim();
@@ -110,6 +110,14 @@ export function textoDoCampo(o) {
   } catch (error) {
     return { texto: '', erro: error.message };
   }
+}
+
+// A linha do .form que usa um arquivo de dados como lista: "estado-civil.json" ->
+// "Estado civil: @estado-civil" (o rótulo vem do nome; o usuário ajusta).
+export function linhaDaLista(arquivo) {
+  const lista = String(arquivo).replace(/\.json$/i, '');
+  const rotulo = lista.replace(/[-_]+/g, ' ').trim();
+  return `${rotulo.charAt(0).toUpperCase()}${rotulo.slice(1)}: @${lista}`;
 }
 
 // Onde entra um campo numa linha nova, com o cursor na linha `linha` (1 = a

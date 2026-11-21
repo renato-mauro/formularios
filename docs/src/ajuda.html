@@ -261,10 +261,19 @@ Estado: @estados{3}     ← sempre 3 colunas (de 1 a 12)</code></pre>
     mesmo nome (<code>paises.json</code> serve a <code>@paises</code>), que você pode editar.
   </li>
   <li>
+    O botão <strong>⧉</strong> ao lado de cada arquivo em <em>Dados</em> copia a linha do
+    <code>.form</code> que usa a lista (<code>Estado civil: @estado-civil</code>): é só colar e
+    ajustar o rótulo.
+  </li>
+  <li>
     Largura: sem <code>{N}</code>, a lista divide a linha como um campo de 8 caracteres;
     sozinha, ocupa a linha inteira. Com <code>{N}</code>, fica com N colunas.
   </li>
   <li>O nome do campo vem do rótulo (<code>estado</code>), não da lista.</li>
+  <li>
+    O nome da lista aceita letras sem acento, números, <code>_</code> e <code>-</code>:
+    <code>Estado civil: @estado-civil</code> usa o <code>estado-civil.json</code>.
+  </li>
 </ul>
 
 <h2 id="ajuda-opcoes">Opções (escolha única e múltipla)</h2>

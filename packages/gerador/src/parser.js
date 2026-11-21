@@ -345,7 +345,8 @@ function matchSpec(raw, pos) {
 
   if (!rest) return { error: 'falta o especificador depois de ":"' };
 
-  let m = /^@([A-Za-z_][A-Za-z0-9_]*)/.exec(rest);
+  // Nome da lista: letras, números, _ e - (como os arquivos: @estado-civil -> estado-civil.json).
+  let m = /^@([A-Za-z_](?:[\w-]*\w)?)/.exec(rest);
   if (m) return ok(m[0].length, { type: 'list', list: m[1], weight: LIST_WEIGHT });
   if ((m = /^R\$\s*(_+)/.exec(rest))) {
     return ok(m[0].length, { type: 'money', mask: 'R$', weight: m[1].length });

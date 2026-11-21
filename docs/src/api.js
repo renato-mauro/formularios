@@ -340,6 +340,9 @@ export function completeForm(doc, pos, info = outline(null), explicit = false) {
       options: [
         ...SPECIFIERS.map(([label, detail]) => ({ label, type: 'constant', detail })),
         ...info.lists.map((l) => ({ label: `@${l}`, type: 'enum', detail: 'lista' })),
+        // Arquivos de dados do projeto que ainda não são lista neste formulário.
+        ...info.data.map((d) => d.replace(/\.json$/, '')).filter((l) => !info.lists.includes(l))
+          .map((l) => ({ label: `@${l}`, type: 'enum', detail: `lista (${l}.json)` })),
         { label: '@lista', type: 'enum', detail: 'lista (nome novo)', snippet: '@${lista}' },
       ],
     };

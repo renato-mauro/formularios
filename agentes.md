@@ -285,8 +285,12 @@ colunas, no lugar do peso.
   opção vazia "Selecione…".
 - As opções vêm do **provedor de lista registrado** com esse nome (§8). Sem
   provedor registrado, o runtime não mexe no `<select>`: o gerado fica vazio, e
-  opções escritas à mão no HTML são mantidas **[PENDENTE E3]**. **A ferramenta não
-  traz listas prontas.**
+  opções escritas à mão no HTML são mantidas **[PENDENTE E3]**. O gerador e o
+  runtime não trazem listas prontas; a interface web tem uma **coleção** para
+  importar como arquivos de dados (§10.2).
+- **Nome da lista:** letras sem acento, números, `_` e `-`, começando por letra ou
+  `_` e sem `-` no fim (`@estados`, `@estado-civil`), como os nomes de arquivo:
+  `@estado-civil` usa `estado-civil.json`.
 - **Arquivo de dados `<nome>.json`:** se o projeto tiver um `estados.json` para a
   lista `@estados`, o JS inicial do formulário onde a lista está (página ou
   componente) já nasce com
@@ -994,7 +998,9 @@ npm test                                                # testes de todos os pac
     ("Voltar ao JS inicial" descarta).
 - **Arquivos de dados (`.json`)** do projeto: criar (sugere o nome da primeira
   `@lista` sem arquivo), enviar do disco, renomear, excluir; editor de JSON com
-  aviso de JSON inválido. Na pré-visualização, `fetch('./x.json')` recebe o
+  aviso de JSON inválido. Ao lado de cada arquivo, um botão copia para a área de
+  transferência a linha do `.form` que o usa como lista (`estado-civil.json` →
+  `Estado civil: @estado-civil`; o rótulo vem do nome do arquivo). Na pré-visualização, `fetch('./x.json')` recebe o
   arquivo do projeto.
 - **Coleção de listas prontas** (botão *Coleção* em Dados): `src/colecao/`
   (`index.json` com título e descrição de cada uma, e um `.json` por lista, no

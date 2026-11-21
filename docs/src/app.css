@@ -92,6 +92,19 @@ body.redimensionando { cursor: col-resize; user-select: none; }
 /* Durante o arrasto, a prévia (iframe) não pode engolir o mouse. */
 body.redimensionando iframe { pointer-events: none; }
 .app-lista .list-group-item { font-size: .875rem; }
+/* Arquivo de dados: o nome abre no editor; o botão ao lado copia a linha do .form. */
+.app-lista .dado { display: flex; align-items: center; padding: 0; }
+.app-lista .dado-abrir {
+  flex: 1;
+  min-width: 0;
+  padding: var(--bs-list-group-item-padding-y) 0 var(--bs-list-group-item-padding-y) var(--bs-list-group-item-padding-x);
+  text-align: start;
+  color: inherit;
+  background: none;
+  border: 0;
+}
+.app-lista .dado-copiar { color: inherit; text-decoration: none; opacity: .6; padding: .25rem .75rem; }
+.app-lista .dado-copiar:hover, .app-lista .dado-copiar:focus-visible { opacity: 1; }
 
 .editor-texto {
   flex: 1;

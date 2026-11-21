@@ -213,6 +213,19 @@ test('lista: sem {N} divide a linha pelo peso; com {N} é fixa', () => {
   assert.deepEqual(cols('Nome: ____________________   Estado: @estados{2}'), [10, 2]);
 });
 
+test('lista: o nome aceita hífen, como os arquivos (@estado-civil)', () => {
+  const lista = (src) => {
+    const r = parse(`-T\n${src}`);
+    return r.errors.length ? r.errors[0].message : Object.values(campos(r.ast)).map((f) => [f.list, f.cols]);
+  };
+  assert.deepEqual(lista('Estado civil: @estado-civil'), [['estado-civil', 12]]);
+  assert.deepEqual(lista('Estado civil: @estado-civil{4}   Nome: ___'), [['estado-civil', 4], [undefined, 8]]);
+  assert.deepEqual(lista('Tipo: @tipo_sanguineo-2'), [['tipo_sanguineo-2', 12]]);
+  assert.match(lista('Estado civil: @estado-'), /especificador não reconhecido/, 'sem hífen no fim');
+  assert.match(lista('Estado civil: @-x'), /especificador não reconhecido/);
+  assert.match(generate('-T\nEstado civil: @estado-civil').html, /data-list="estado-civil"/);
+});
+
 test('largura {N} em qualquer especificador: fixa, fora da divisão por peso', () => {
   const r = (src) => parse(`-T\n${src}`);
   const cols = (src) => Object.values(campos(r(src).ast)).map((f) => [f.type, f.cols]);

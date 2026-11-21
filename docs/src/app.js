@@ -5,6 +5,7 @@
 import { componentsOf, formatIssue, render, slug } from '@formularios/gerador';
 import { outline } from './api.js';
 import { assistenteDeCampo } from './assistente.js';
+import { linhaDaLista } from './campo.js';
 import { escolherDaColecao } from './colecao.js';
 import { codeEditor } from './editor.js';
 import { estrutura } from './estrutura.js';
@@ -282,12 +283,30 @@ function renderLists() {
   ui.componentes.replaceChildren(...components(p).map(formItem));
   $('componentes-vazio').hidden = components(p).length > 0;
   $('dados-vazio').hidden = p.data.length > 0;
-  ui.dados.replaceChildren(...p.data.map((d) => item(d.file, open === d, () => {
-    selectedData = d.id;
-    renderLists();
-    renderEditor();
-    listProblems();
-  })));
+  // Cada arquivo de dados: abrir no editor e, ao lado, copiar a linha do .form
+  // que o usa como lista ("Estado civil: @estado-civil").
+  ui.dados.replaceChildren(...p.data.map((d) => {
+    const abrir = item(d.file, open === d, () => {
+      selectedData = d.id;
+      renderLists();
+      renderEditor();
+      listProblems();
+    });
+    abrir.classList.replace('list-group-item', 'dado-abrir');
+    abrir.classList.remove('list-group-item-action', 'active'); // o destaque fica na linha inteira
+    const linha = linhaDaLista(d.file);
+    const copiar = document.createElement('button');
+    copiar.type = 'button';
+    copiar.className = 'dado-copiar btn btn-sm btn-link';
+    copiar.textContent = '⧉';
+    copiar.title = `Copiar a linha do .form: ${linha}`;
+    copiar.setAttribute('aria-label', `Copiar a linha do .form que usa ${d.file}: ${linha}`);
+    copiar.addEventListener('click', () => copiarTexto(linha));
+    const el = document.createElement('div');
+    el.className = `list-group-item list-group-item-action dado${open === d ? ' active' : ''}`;
+    el.append(abrir, copiar);
+    return el;
+  }));
 }
 
 function renderEditor() {
@@ -549,6 +568,28 @@ function goToData(d, n) {
 function mostrar(titulo, valor) {
   ui.jsonTitulo.textContent = titulo;
   ui.json.textContent = valor === undefined ? '' : JSON.stringify(valor, null, 2);
+}
+
+// Área de transferência: a API do navegador ou, se ela recusar (página fora de
+// https, sem foco), o execCommand('copy') antigo; sem os dois, o texto aparece no
+// aviso para copiar à mão.
+async function copiarTexto(texto) {
+  let ok = false;
+  try {
+    await navigator.clipboard.writeText(texto);
+    ok = true;
+  } catch {
+    const area = Object.assign(document.createElement('textarea'), { value: texto, readOnly: true });
+    area.style.cssText = 'position: fixed; opacity: 0;';
+    document.body.append(area);
+    area.select();
+    try {
+      ok = document.execCommand('copy');
+    } catch { /* sem cópia */ }
+    area.remove();
+  }
+  if (ok) aviso(`Copiado: ${texto} — cole numa linha do .form (o rótulo pode ser trocado).`);
+  else aviso(`Não foi possível copiar; selecione e copie: ${texto}`, 'warning');
 }
 
 function aviso(texto, tipo = 'success') {

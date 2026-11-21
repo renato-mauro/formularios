@@ -97,6 +97,10 @@ test('.form: especificadores, componentes depois de "+" e linhas com Ctrl+Espaç
   assert.equal(r.typed, 'dd');
   assert.ok(r.labels.includes('dd/mm/aaaa'));
   assert.ok(r.labels.includes('@estados'));
+  const comDados = { ...info, data: ['estados.json', 'estado-civil.json'] };
+  const listas = at('-T\nEstado civil: @es|', completeForm, false, comDados).options.filter((o) => o.label.startsWith('@es'));
+  assert.deepEqual(listas.map((o) => [o.label, o.detail]), [['@estados', 'lista'], ['@estado-civil', 'lista (estado-civil.json)']],
+    'os arquivos de dados do projeto viram sugestões de @lista');
   assert.equal(at('-T\nHora: hh:|', completeForm), null, 'o ":" de hh:mm não abre outra sugestão');
   assert.deepEqual(at('-T\n+end|', completeForm).labels, ['endereco', 'pessoa']);
   assert.equal(at('-T\n+end|', completeForm).typed, 'end');

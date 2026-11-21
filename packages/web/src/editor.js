@@ -237,7 +237,7 @@ const FORM_MODE = {
     if (state.spec) {
       if (stream.eatSpace()) return null;
       state.spec = false;
-      if (stream.match(/^@\w+(\{\d+\})?/)) return 'typeName';
+      if (stream.match(/^@[\w-]+(\{\d+\})?/)) return 'typeName';
       if (stream.match(/^(R\$\s*_*|email_*|dd\/mm\/aaaa|hh:mm|\(\d\d\) \d{4,5}-\d{4}|[09A*().\/\-,+#]+)(\{\d+\})?/)) return 'string';
       if (stream.match(/^_+(\{\d+\})?/)) return 'meta';
     }
