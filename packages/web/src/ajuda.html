@@ -145,7 +145,9 @@ CPF*: 999.999.999-99   Nascimento*: dd/mm/aaaa</code></pre>
   Você escolhe o tipo, o rótulo, o nome no JSON, se é obrigatório e os parâmetros (tamanho,
   dígitos, máscara, lista, opções, largura), vê a linha que vai entrar e insere. O campo entra
   numa linha nova depois da do cursor, ou ao lado dos campos dela; Ctrl+Z desfaz. Numa lista,
-  os itens podem vir da coleção, e o arquivo vem junto.
+  os itens podem vir da coleção, e o arquivo vem junto. Marcando <em>Calculado</em>, você
+  escreve a fórmula e o assistente gera o JS (<a href="#ajuda-calculados">Campos
+  calculados</a>).
 </p>
 
 <h2 id="ajuda-secoes">Título e seções</h2>
@@ -648,6 +650,16 @@ form.validator({ selector: '[data-mask="R$"]' },
   <li>
     Um nome que não existe é <strong>erro</strong>: o JS para ali (e com ele as máscaras). A
     mensagem sugere o nome completo.
+  </li>
+  <li>
+    <strong>Pelo assistente</strong> (<em>+ Campo</em> → <em>Calculado</em>): escreva só a
+    fórmula, com os campos como variáveis — <code>quantidade * preco</code>,
+    <code>utils.dateDiffYears(nascimento)</code> — e o assistente gera o
+    <code>calcField</code>, com as dependências e o nome completo dos campos, e o põe no JS
+    antes do <code>await form.ready()</code> (num componente, dentro da função). O nome curto
+    basta quando só um campo tem esse nome; se dois têm (<code>cep</code>), use o caminho
+    (<code>residencial.cep</code>). Por padrão, o resultado fica vazio quando falta algum valor.
+    Para mais de uma linha, escreva um corpo com <code>return</code>.
   </li>
   <li>
     Idade, prazos, somas e médias já têm função pronta, que vai direto no 3º parâmetro:

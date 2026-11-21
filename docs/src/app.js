@@ -5,6 +5,7 @@
 import { componentsOf, formatIssue, render, slug } from '@formularios/gerador';
 import { outline } from './api.js';
 import { assistenteDeCampo } from './assistente.js';
+import { inserirNoJs } from './calculado.js';
 import { linhaDaLista } from './campo.js';
 import { escolherDaColecao } from './colecao.js';
 import { codeEditor } from './editor.js';
@@ -796,13 +797,17 @@ $('colecao-abrir').addEventListener('click', async () => {
 });
 
 // Assistente de campo: insere a linha do .form na posição do cursor (entra no
-// desfazer). Uma lista com itens da coleção traz o arquivo junto.
+// desfazer). Uma lista com itens da coleção traz o arquivo junto; um campo
+// calculado põe o calcField no JS (o inicial passa a ser do usuário).
 ui.campoAbrir.addEventListener('click', async () => {
   const f = form();
   if (!f) return;
   const p = project();
+  const component = f.kind === 'component';
+  const script = f.script ?? scriptOf(f, generateForm(p, f).ast, p);
   const r = await assistenteDeCampo($('campo'), {
-    fonte: editors.form.value, linha: editors.form.cursorLine, component: f.kind === 'component', dados: dataFiles(p),
+    fonte: editors.form.value, linha: editors.form.cursorLine, component, dados: dataFiles(p), script,
+    analisar: (fonte) => generateForm(p, { ...f, source: fonte }).ast,
   });
   if (!r) return editors.form.focus();
   if (r.importar) {
@@ -811,6 +816,14 @@ ui.campoAbrir.addEventListener('click', async () => {
     aviso(`${r.importar.file} importado da coleção para a lista.`);
   }
   editors.form.edit(r.fonte, r.de, r.ate);
+  if (r.calculo) {
+    const inicial = f.script === null;
+    f.script = inserirNoJs(f.script ?? scriptOf(f, generateForm(p, f).ast, p), r.calculo, { component });
+    renderScript(null);
+    refresh();
+    aviso(`Campo calculado: o calcField foi para ${component ? 'o JS do componente' : 'o JS da página'} (aba ao lado)${
+      inicial ? '. O JS inicial passou a ser seu: listas novas no .form não entram mais nele sozinhas' : ''}.`);
+  }
   saveNow();
 });
 

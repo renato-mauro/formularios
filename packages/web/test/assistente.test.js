@@ -3,6 +3,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { generate, parse } from '@formularios/gerador';
 import { contexto, inserir, linhaDaLista, posicao, textoDoCampo, TIPOS } from '../src/campo.js';
+import { campoNaLinha, camposDaAst, codigoDoCalculo, inserirNoJs, lerFormula, objetoDoJs } from '../src/calculado.js';
 import { comoOpcoes, rotulos } from '../src/colecao.js';
 import { estrutura } from '../src/estrutura.js';
 
@@ -42,6 +43,45 @@ test('arquivo de dados -> a linha do .form que o usa como lista', () => {
   for (const f of ['estado-civil.json', 'dias-semana.json', 'paises.json']) {
     assert.deepEqual(parse(`-T\n${linhaDaLista(f)}`, { name: 'x' }).errors, [], f);
   }
+});
+
+test('campo calculado: fórmula -> calcField, com os campos como variáveis', () => {
+  const caminhos = ['pedido.quantidade', 'pedido.preco', 'pessoais.nascimento', 'residencial.cep', 'comercial.cep', 'nome', 'pedido.total'];
+  const calc = (formula, extra = {}) => codigoDoCalculo({ alvo: 'pedido.total', formula, caminhos, ...extra });
+  assert.equal(calc('quantidade * preco').codigo.split('\n').slice(1).join('\n'),
+    "form.calcField('pedido.total', ['pedido.quantidade', 'pedido.preco'],\n  (quantidade, preco) => (quantidade == null || preco == null ? null : quantidade * preco));",
+    'nome curto único vale o caminho completo; vazio vira null; linha longa quebra');
+  assert.equal(calc('utils.dateDiffYears(pessoais.nascimento)', { nulo: false, obj: 'f' }).codigo.split('\n').slice(1).join(' '),
+    "f.calcField('pedido.total', ['pessoais.nascimento'],   (nascimento) => utils.dateDiffYears(nascimento));");
+  assert.equal(codigoDoCalculo({ alvo: 'total', formula: 'a + b', caminhos: ['a', 'b'] }).codigo.split('\n')[1],
+    "form.calcField('total', ['a', 'b'], (a, b) => (a == null || b == null ? null : a + b));", 'curta: numa linha só');
+  assert.deepEqual(lerFormula('"preco" + preco // preco', caminhos).deps.map((d) => d.path), ['pedido.preco'], 'strings e comentários ficam');
+  assert.equal(lerFormula('nome.length + Math.max(1, 2)', caminhos).expressao, 'nome.length + Math.max(1, 2)');
+  assert.equal(lerFormula('residencial.cep + comercial.cep', caminhos).expressao, 'residencial_cep + comercial_cep', 'mesmo nome curto: parâmetro com o caminho');
+  assert.match(calc('cep').erro, /"cep" é de mais de um campo: use residencial\.cep ou comercial\.cep/);
+  assert.match(calc('total + 1').erro, /próprio campo/);
+  assert.match(calc('preco *').erro, /JavaScript inválido/);
+  assert.match(calc('').erro, /escreva a fórmula/);
+  assert.match(calc('42').aviso, /não usa nenhum campo/);
+  assert.equal(calc('if (preco > 10) return 1;\nreturn 2;').codigo.split('\n').slice(1).join('\n'),
+    "form.calcField('pedido.total', ['pedido.preco'], (preco) => {\n  if (preco == null) return null;\n  if (preco > 10) return 1;\n  return 2;\n});");
+});
+
+test('campo calculado: onde o código entra no JS', () => {
+  const ast = parse('-T\nNome: ___\n--Pedido{pedido}\nQuantidade: 999   Total: R$ ___', { name: 'x' }).ast;
+  assert.deepEqual(camposDaAst(ast).map((c) => c.path), ['nome', 'pedido.quantidade', 'pedido.total']);
+  assert.equal(campoNaLinha(ast, 4), 'pedido.total', 'o último campo da linha');
+  const pagina = "import { Form } from './forms.js';\n\nconst f = new Form('#x');\nf.action('enviar', () => {});\n\nawait f.ready();\n";
+  assert.equal(objetoDoJs(pagina), 'f');
+  assert.equal(inserirNoJs(pagina, "f.calcField('a', ['b'], (b) => utils.sum(b));"),
+    "import { Form, utils } from './forms.js';\n\nconst f = new Form('#x');\nf.action('enviar', () => {});\n\nf.calcField('a', ['b'], (b) => utils.sum(b));\n\nawait f.ready();\n",
+    'antes do ready(), com utils no import');
+  const comp = "export default function endereco(p) {\n  p.list('estados', () => []);\n}\n";
+  assert.equal(objetoDoJs(comp, { component: true }), 'p');
+  assert.equal(inserirNoJs(comp, "p.calcField('a', [], () => utils.sum(1));", { component: true }),
+    "import { utils } from '../forms.js';\n\nexport default function endereco(p) {\n  p.list('estados', () => []);\n\n  p.calcField('a', [], () => utils.sum(1));\n}\n",
+    'dentro da função, com o import de utils');
+  assert.equal(inserirNoJs('// nada\n', 'x;'), '// nada\n\nx;\n', 'sem ready nem função: no fim');
 });
 
 test('assistente: erros antes de inserir', () => {

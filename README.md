@@ -54,7 +54,9 @@ Abra <http://localhost:8080/> (vai para a interface web). Lá você:
   componente sozinho;
 - inclui campos pelo **assistente** (*+ Campo*): escolhe o tipo, o rótulo, o nome
   no JSON, se é obrigatório e os parâmetros (tamanho, dígitos, máscara, lista,
-  opções, largura), vê a linha do `.form` e insere na posição do cursor;
+  opções, largura), vê a linha do `.form` e insere na posição do cursor; num
+  **campo calculado**, escreve a fórmula em JavaScript com os campos como
+  variáveis (`quantidade * preco`) e o `calcField` vai para o JS;
 - importa listas prontas da **Coleção** (estados, países, meses, estado civil,
   escolaridade...) como arquivos de dados do projeto;
 - vê a **Estrutura** de dados do formulário: cada campo com o caminho no JSON, o

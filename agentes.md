@@ -1025,6 +1025,21 @@ npm test                                                # testes de todos os pac
   ali (no máximo 3). Lista com itens da coleção importa o arquivo junto; opções
   podem ser preenchidas com uma lista da coleção. A inserção entra no desfazer do
   editor. A regra fica em `src/campo.js` (puro, testado).
+  - **Campo calculado** (campos da linha, menos lista): o usuário escreve a
+    fórmula em JavaScript com os campos como variáveis (`quantidade * preco`,
+    `utils.dateDiffYears(pessoais.nascimento)`, ou um corpo com `return`); um
+    seletor põe o caminho de um campo na fórmula. Vale o caminho completo ou o
+    nome curto, se só um campo tem esse nome; nome curto de mais de um campo é
+    erro, que diz os caminhos. Strings e comentários da fórmula ficam como estão.
+    O assistente gera e mostra o `calcField` (dependências na ordem em que
+    aparecem; parâmetros com o nome curto ou, se repetido, o caminho com `_`; por
+    padrão devolve `null` quando falta algum valor), confere a sintaxe e recusa a
+    fórmula que usa o próprio campo. O caminho do campo novo sai do `.form` já com
+    ele inserido. Ao inserir, o código vai para o JS da página (antes do último
+    `await x.ready()`, com o nome da variável do `new Form`) ou do componente
+    (dentro da função, com o nome do parâmetro), e o import de `utils` entra se
+    faltar; o JS inicial passa a ser do usuário. A regra fica em
+    `src/calculado.js` (puro, testado).
 - **Editores** (CodeMirror, ver §2): destaque de sintaxe no `.form`, no JS e no
   JSON; desfazer, busca, parênteses. **Autocompletar e snippets da biblioteca**
   no JS: membros de `Form` (`form.`), da parte (`parte.`, o parâmetro do
@@ -1148,6 +1163,7 @@ packages/web/                     # P2 @formularios/web
   src/preview.js                  #   documento da pré-visualização e módulos dos componentes
   src/zip.js                      #   zip (CompressionStream)
   src/campo.js, src/assistente.js #   assistente de campo: a regra (pura) e a janela
+  src/calculado.js                #   assistente: fórmula -> calcField e onde ele entra no JS
   src/estrutura.js                #   estrutura de dados do formulário (vista Estrutura)
   src/colecao.js, src/colecao/    #   coleção de listas prontas (index.json + um .json por lista)
   scripts/build.js                #   -> docs/
