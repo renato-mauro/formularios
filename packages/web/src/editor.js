@@ -66,6 +66,32 @@ export function codeEditor(textarea, { language, onChange = () => {}, context = 
         annotations: cm.state.Transaction.addToHistory.of(false),
       });
     },
+    // Troca o documento por `text` como uma edição do usuário (entra no desfazer e
+    // chama onChange), mexendo só no trecho que mudou; depois seleciona as linhas
+    // `from` a `to` (1 = a primeira).
+    edit(text, from, to = from) {
+      if (!view) {
+        textarea.value = text;
+        onChange(text);
+        return selectTextareaLine(textarea, from);
+      }
+      const old = view.state.doc.toString();
+      let a = 0;
+      while (a < old.length && a < text.length && old[a] === text[a]) a++;
+      let b = 0;
+      while (b < old.length - a && b < text.length - a && old[old.length - 1 - b] === text[text.length - 1 - b]) b++;
+      view.dispatch({ changes: { from: a, to: old.length - b, insert: text.slice(a, text.length - b) }, userEvent: 'input' });
+      const doc = view.state.doc;
+      const first = doc.line(Math.max(1, Math.min(from, doc.lines)));
+      const last = doc.line(Math.max(1, Math.min(to, doc.lines)));
+      view.dispatch({ selection: { anchor: first.from, head: last.to }, scrollIntoView: true });
+      view.focus();
+    },
+    // Linha do cursor (1 = a primeira).
+    get cursorLine() {
+      if (view) return view.state.doc.lineAt(view.state.selection.main.head).number;
+      return textarea.value.slice(0, textarea.selectionStart).split('\n').length;
+    },
     focus() {
       (view ?? textarea).focus();
     },

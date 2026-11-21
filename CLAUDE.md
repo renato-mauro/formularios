@@ -18,5 +18,7 @@ qualquer comportamento. Decisões das rodadas de perguntas já estão incorporad
   não ficam no `.form`: vêm das ações do JS da página (§3.11, §3.12, §8.10).
 - `npm install` uma vez (só liga os pacotes). Testes: `npm test`. Servidor local: `npm start`.
 - Depois de mudar o gerador ou o runtime, regenere o exemplo com `npm run exemplo`.
+- `docs/` é o site do GitHub Pages, gerado por `npm run build` e versionado: depois
+  de mudar a web, o gerador ou o runtime, rode o build antes do commit.
 - Ao mudar a linguagem `.form` ou a API do runtime, atualize também a ajuda da
   interface web (`packages/web/src/ajuda.html`).

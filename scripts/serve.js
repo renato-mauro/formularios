@@ -1,8 +1,8 @@
 // Servidor estático mínimo para desenvolvimento (sem dependências): serve o
 // monorepo inteiro; "/" abre a interface web (packages/web).
 // Uso: npm start   (ou: node scripts/serve.js, PORT=3000 node scripts/serve.js)
-// Com --pages, serve só packages/web/dist em /formularios/, como o GitHub Pages
-// (npm run pages: testa, monta o dist e serve).
+// Com --pages, serve só docs/ (o site montado por npm run build) em /formularios/,
+// como o GitHub Pages (npm run pages: testa, monta e serve).
 import { createReadStream } from 'node:fs';
 import { stat } from 'node:fs/promises';
 import http from 'node:http';
@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PAGES = process.argv.includes('--pages');
-const ROOT = PAGES ? path.join(REPO, 'packages/web/dist') : REPO;
+const ROOT = PAGES ? path.join(REPO, 'docs') : REPO;
 const BASE = PAGES ? '/formularios/' : '/'; // no Pages, o site fica numa subpasta
 const PORT = Number(process.env.PORT) || 8080;
 const TYPES = {

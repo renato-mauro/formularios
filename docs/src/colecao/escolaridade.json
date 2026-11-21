@@ -1,0 +1,12 @@
+[
+  { "value": "sem_escolaridade", "label": "Sem escolaridade" },
+  { "value": "fundamental_incompleto", "label": "Ensino fundamental incompleto" },
+  { "value": "fundamental_completo", "label": "Ensino fundamental completo" },
+  { "value": "medio_incompleto", "label": "Ensino médio incompleto" },
+  { "value": "medio_completo", "label": "Ensino médio completo" },
+  { "value": "superior_incompleto", "label": "Ensino superior incompleto" },
+  { "value": "superior_completo", "label": "Ensino superior completo" },
+  { "value": "pos_graduacao", "label": "Pós-graduação" },
+  { "value": "mestrado", "label": "Mestrado" },
+  { "value": "doutorado", "label": "Doutorado" }
+]

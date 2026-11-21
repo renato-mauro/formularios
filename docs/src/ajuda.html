@@ -1,0 +1,829 @@
+<!-- Ajuda da interface web: a linguagem .form, os componentes e o JS (resumo do
+     agentes.md §3, §4, §7 e §8). Fragmento: app.js busca este arquivo na primeira
+     vez que o painel abre. -->
+<div class="ajuda-indice small">
+  <div>
+    <div class="fw-semibold">O formulário (<code>.form</code>)</div>
+    <ol>
+      <li><a href="#ajuda-exemplo">Exemplo</a></li>
+      <li><a href="#ajuda-componentes">Páginas e componentes</a></li>
+      <li><a href="#ajuda-linhas">Tipos de linha</a></li>
+      <li><a href="#ajuda-secoes">Título e seções</a></li>
+      <li><a href="#ajuda-campos">Linha de campos</a></li>
+      <li><a href="#ajuda-mascaras">Máscaras e tipos</a></li>
+      <li><a href="#ajuda-listas">Listas <code>@nome</code></a></li>
+      <li><a href="#ajuda-opcoes">Opções</a></li>
+      <li><a href="#ajuda-texto-longo">Texto longo</a></li>
+      <li><a href="#ajuda-caixa">Caixa de marcação</a></li>
+      <li><a href="#ajuda-botoes">Botões</a></li>
+      <li><a href="#ajuda-nomes">Nomes e JSON</a></li>
+      <li><a href="#ajuda-larguras">Larguras</a></li>
+    </ol>
+  </div>
+  <div>
+    <div class="fw-semibold">O JS</div>
+    <ol>
+      <li><a href="#ajuda-js">O JS da página</a></li>
+      <li><a href="#ajuda-js-componente">O JS do componente</a></li>
+      <li><a href="#ajuda-alvos">Alvos</a></li>
+      <li><a href="#ajuda-js-listas">Listas</a></li>
+      <li><a href="#ajuda-acoes">Ações (os botões)</a></li>
+      <li><a href="#ajuda-validadores">Validadores</a></li>
+      <li><a href="#ajuda-calculados">Campos calculados</a></li>
+      <li><a href="#ajuda-utils">Funções prontas (<code>utils</code>)</a></li>
+      <li><a href="#ajuda-dados">Dados e estado</a></li>
+      <li><a href="#ajuda-field">Campos</a></li>
+      <li><a href="#ajuda-mensagens">Mensagens</a></li>
+      <li><a href="#ajuda-eventos">Eventos</a></li>
+      <li><a href="#ajuda-previa">Na pré-visualização</a></li>
+    </ol>
+  </div>
+</div>
+
+<p class="ajuda-parte">O formulário (<code>.form</code>)</p>
+
+<h2 id="ajuda-exemplo">Exemplo</h2>
+<p>
+  Cada linha do arquivo é uma linha do formulário: o texto já parece o formulário.
+  Uma página (<code>pages/clientes.form</code>) que inclui dois componentes, um deles duas vezes:
+</p>
+<pre><code>-Cadastro de Clientes
+--Dados Pessoais{pessoais}
++pessoa
+--Endereço Residencial{residencial}
++endereco
+--Endereço Comercial{comercial}
++endereco
+--Sexo*
+(M) Masculino
+(F) Feminino
+( ) Prefiro não informar
+--Observações{obs}
+______________________________________________
+______________________________________________
+[ ] Aceito os termos de uso{aceite}*</code></pre>
+<p>O componente <code>components/pessoa.form</code> (componente não tem título):</p>
+<pre><code>Nome*: ______________________________   Salário: R$ __________
+CPF*: 999.999.999-99   Nascimento*: dd/mm/aaaa</code></pre>
+<p>E o <code>components/endereco.form</code>:</p>
+<pre><code>Cidade: _____________   Estado: @estados   CEP: 99999-999</code></pre>
+<p>
+  O <code>.form</code> só declara a estrutura, o tipo de cada campo (pela máscara) e o que é
+  obrigatório. Não há comentários, regras, validações extras nem botões: isso fica no
+  <a href="#ajuda-js">JS</a>. A página acima sai com um botão, <em>Enviar</em>; outros vêm das
+  <a href="#ajuda-acoes">ações</a>.
+</p>
+<p>
+  No editor, <kbd>Ctrl</kbd>+<kbd>Espaço</kbd> sugere o que cabe onde está o cursor: depois de
+  <code>Rótulo: </code>, os tipos de campo e as listas; depois de <code>+</code>, os
+  componentes do projeto; numa linha vazia, seção, seção com componente, opções e caixa de
+  marcação.
+</p>
+
+<h2 id="ajuda-componentes">Páginas e componentes</h2>
+<p>
+  O projeto tem duas pastas fixas, as duas primeiras listas à esquerda: <strong>Páginas</strong>
+  (<code>pages/</code>), os formulários que viram páginas, e <strong>Componentes</strong>
+  (<code>components/</code>), formulários que só entram nas páginas, como um endereço usado em
+  vários lugares. Um componente é escrito como qualquer formulário (campos, seções, opções),
+  mas <strong>sem título</strong>: o título vem da seção onde ele entra.
+</p>
+<pre><code>--Endereço Residencial{residencial}
++endereco
+--Endereço Comercial{comercial}
++endereco</code></pre>
+<ul>
+  <li>
+    O componente entra <strong>sozinho numa seção</strong>, como o texto longo de
+    <em>Observações</em>: a linha <code>+componente</code> logo abaixo de
+    <code>--Título{nome}</code>, e nada mais. A seção dá o título e o nome; os campos do
+    componente ficam direto nela. No JSON: <code>"residencial": { "cidade": …, "cep": … }</code>.
+  </li>
+  <li>
+    A seção termina no <code>+</code>: o que vem depois volta à seção de cima, e ela não recebe
+    subseções.
+  </li>
+  <li>
+    O componente entra <strong>como ele é</strong>: os obrigatórios valem como estão lá. Regras
+    como “pelo menos um dos endereços” ficam no JS.
+  </li>
+  <li>
+    Um componente pode incluir outros. Componente que não existe, inclusão circular
+    (<code>a → b → a</code>) ou erro dentro do componente aparecem na linha da inclusão; clique
+    no problema para abrir o componente onde está o erro.
+  </li>
+  <li>
+    Renomear um componente atualiza as linhas <code>+nome</code> das páginas e os imports do
+    JS. O nome do arquivo é o nome do formulário: <code>clientes.form</code> gera
+    <code>clientes.html</code>, <code>clientes.js</code> e <code>&lt;form id="clientes"&gt;</code>.
+  </li>
+  <li>
+    Uma página pode não ter campos próprios: só o título e as seções dos componentes. Com um
+    componente aberto, a pré-visualização mostra o componente sozinho.
+  </li>
+</ul>
+
+<h2 id="ajuda-linhas">Tipos de linha</h2>
+<table class="table table-sm">
+  <thead><tr><th>Escreva</th><th>O que é</th></tr></thead>
+  <tbody>
+    <tr><td><code>-Texto</code></td><td>título da página (um por arquivo, na primeira linha); componente não tem título</td></tr>
+    <tr><td><code>--Texto</code></td><td>seção</td></tr>
+    <tr><td><code>---Texto</code></td><td>subseção, dentro da seção anterior</td></tr>
+    <tr><td><code>Rótulo: especificador</code></td><td>linha de campos</td></tr>
+    <tr><td><code>(M) Texto</code> / <code>( ) Texto</code></td><td>opção de escolha única (rádio), numa seção de opções</td></tr>
+    <tr><td><code>[ESP] Texto</code> / <code>[ ] Texto</code></td><td>opção de seleção múltipla, numa seção de opções</td></tr>
+    <tr><td><code>______</code> (só sublinhados)</td><td>linha de texto longo, numa seção de texto longo</td></tr>
+    <tr><td><code>[ ] Texto</code></td><td>caixa de marcação, fora de seção de opções</td></tr>
+    <tr><td><code>+componente</code></td><td>inclui um componente; sozinha numa seção, logo abaixo do <code>--Título</code> (<a href="#ajuda-componentes">Componentes</a>)</td></tr>
+    <tr><td><code>[[ Texto ]]</code></td><td>erro: os botões vêm do JS (<a href="#ajuda-botoes">Botões</a>)</td></tr>
+    <tr><td>linha vazia</td><td>ignorada</td></tr>
+  </tbody>
+</table>
+<p>
+  Sem decorar nada: o botão <strong>+ Campo</strong>, na barra do editor, abre o assistente.
+  Você escolhe o tipo, o rótulo, o nome no JSON, se é obrigatório e os parâmetros (tamanho,
+  dígitos, máscara, lista, opções, largura), vê a linha que vai entrar e insere. O campo entra
+  numa linha nova depois da do cursor, ou ao lado dos campos dela; Ctrl+Z desfaz. Numa lista,
+  os itens podem vir da coleção, e o arquivo vem junto.
+</p>
+
+<h2 id="ajuda-secoes">Título e seções</h2>
+<ul>
+  <li>
+    <code>-Cadastro de Clientes</code>: o título da página, na primeira linha (componente não
+    tem título). Sem <code>{nome}</code>: o nome do formulário é o do arquivo (<code>cadcli.form</code> → <code>cadcli.html</code>,
+    <code>cadcli.js</code> e <code>new Form('#cadcli')</code>); renomear o arquivo renomeia tudo.
+  </li>
+  <li>
+    <code>--Texto</code> abre uma seção e <code>---Texto</code> uma subseção dentro da última
+    seção. No máximo três níveis (<code>----</code> é erro) e sem pular nível (de
+    <code>-</code> direto para <code>---</code>).
+  </li>
+  <li>
+    Cada seção vira um <code>&lt;fieldset&gt;</code> e um nível no JSON, com o nome das chaves
+    (<code>--Dados Pessoais{pessoais}</code> → <code>"pessoais": { … }</code>) ou do texto.
+  </li>
+  <li>
+    Os campos ficam na seção aberta mais recente. Depois de abrir uma subseção não se volta à
+    seção de cima: para pôr campos de novo no nível de cima, abra outra seção <code>--</code>.
+  </li>
+  <li>O espaço depois dos hífens é opcional: <code>--Dados</code> = <code>-- Dados</code>.</li>
+</ul>
+
+<h2 id="ajuda-campos">Linha de campos</h2>
+<pre><code>Rótulo{nome}*: especificador   Outro: especificador{N}   …</code></pre>
+<ul>
+  <li>O rótulo termina em <code>:</code>, tem ao menos uma letra e fica sempre acima do campo.</li>
+  <li>
+    <code>*</code> = obrigatório. Só é cobrado no envio (<code>form.validate()</code>), não
+    enquanto a pessoa digita.
+  </li>
+  <li>
+    <code>{nome}</code> dá o nome do campo; sem ele, o nome vem do rótulo (veja
+    <a href="#ajuda-nomes">Nomes</a>). A forma usual é <code>Endereço{logradouro}*:</code>; o
+    <code>*</code> também pode vir antes das chaves.
+  </li>
+  <li>O espaço entre <code>:</code> e o especificador é opcional: <code>Nº*:________</code>.</li>
+  <li>
+    <code>{N}</code> colado no fim do especificador fixa a largura em N colunas (de 1 a 12):
+    <code>Nome: ______{6}</code>, <code>CPF: 999.999.999-99{3}</code>,
+    <code>Nascimento: dd/mm/aaaa{2}</code>. Veja <a href="#ajuda-larguras">Larguras</a>.
+  </li>
+  <li>
+    Até 12 campos por linha. Um especificador que não está na tabela abaixo é erro, com linha e
+    coluna na lista de problemas.
+  </li>
+</ul>
+
+<h2 id="ajuda-mascaras">Máscaras e tipos</h2>
+<p>
+  O especificador define o tipo do campo, a máscara e a validação embutida. É reconhecido
+  nesta ordem:
+</p>
+<table class="table table-sm">
+  <thead><tr><th>Escreva</th><th>Campo</th><th>No JSON</th></tr></thead>
+  <tbody>
+    <tr><td><code>@estados</code></td><td>lista de opções (<a href="#ajuda-listas">Listas</a>)</td><td><code>"SP"</code></td></tr>
+    <tr><td><code>R$ __________</code></td><td>moeda: 2 casas, com milhar (<code>1.234,56</code>)</td><td><code>1234.56</code></td></tr>
+    <tr><td><code>email__________</code></td><td>e-mail (confere o formato)</td><td>texto</td></tr>
+    <tr><td><code>dd/mm/aaaa</code></td><td>data (confere se existe)</td><td><code>"1980-05-17"</code></td></tr>
+    <tr><td><code>hh:mm</code></td><td>hora, de 00:00 a 23:59</td><td><code>"14:30"</code></td></tr>
+    <tr><td><code>999.999.999-99</code></td><td>CPF (dígitos verificadores)</td><td><code>"529.982.247-25"</code></td></tr>
+    <tr><td><code>99.999.999/9999-99</code></td><td>CNPJ numérico ou alfanumérico (dígitos verificadores)</td><td>texto</td></tr>
+    <tr><td><code>99999-999</code></td><td>CEP</td><td><code>"01310-100"</code></td></tr>
+    <tr><td><code>(99) 99999-9999</code><br><code>(99) 9999-9999</code></td><td>telefone celular / fixo</td><td>texto</td></tr>
+    <tr><td><code>__________</code></td><td>texto livre</td><td>texto</td></tr>
+    <tr><td><code>999</code></td><td>inteiro de até 3 dígitos</td><td><code>123</code></td></tr>
+    <tr><td><code>0000</code></td><td>código de exatamente 4 dígitos; ao sair, completa com zeros (<code>12</code> → <code>0012</code>)</td><td><code>"0012"</code></td></tr>
+    <tr><td><code>99999.99</code></td><td>decimal: até 5 dígitos inteiros e 2 casas, exibido <code>12,50</code></td><td><code>12.5</code></td></tr>
+    <tr><td><code>AAA-9999</code></td><td>máscara posicional (abaixo)</td><td><code>"ABC-1234"</code></td></tr>
+  </tbody>
+</table>
+<ul>
+  <li>
+    Máscara posicional: <code>9</code> (ou <code>0</code>) é dígito, <code>A</code> é letra e
+    <code>*</code> é letra ou dígito; o resto é literal, inserido sozinho enquanto se digita.
+  </li>
+  <li>
+    Só com dígitos, <code>9</code> e <code>0</code> mudam o tipo: <code>999</code> é número,
+    <code>000</code> é código (texto com zeros à esquerda). Misturar os dois (<code>0099</code>)
+    é erro. Com literais, tanto faz: <code>00000-000</code> também é CEP.
+  </li>
+  <li>
+    Inteiro, decimal e moeda aceitam negativo. Limites ficam fora do <code>.form</code>:
+    <code>data-min</code>/<code>data-max</code> no HTML ou <code>field.min</code>/<code>field.max</code> no JS.
+  </li>
+  <li>
+    Campo vazio sai <code>null</code>. CPF, CNPJ, CEP, telefone e máscaras posicionais saem com
+    a pontuação; para tirar, use a opção <code>literals</code> do <code>Form</code> no JS.
+  </li>
+</ul>
+
+<h2 id="ajuda-listas">Listas <code>@nome</code></h2>
+<pre><code>Estado: @estados        ← divide a linha com os outros campos
+Estado: @estados{3}     ← sempre 3 colunas (de 1 a 12)</code></pre>
+<ul>
+  <li>
+    Vira um <code>&lt;select&gt;</code> só com “Selecione…”. As opções vêm do JS:
+    <code>form.list('estados', …)</code> na página, <code>parte.list('estados', …)</code> num
+    componente.
+  </li>
+  <li>
+    Com um arquivo de dados <code>estados.json</code> no projeto (seção <em>Dados</em>, à
+    esquerda), o JS inicial já lê o arquivo. Formato:
+    <code>[{ "value": "SP", "label": "São Paulo" }]</code> ou <code>["SP", "RJ"]</code>.
+  </li>
+  <li>
+    Listas prontas: o botão <em>Coleção</em>, em <em>Dados</em>, importa estados do Brasil,
+    regiões, países, meses, dias da semana, estado civil, escolaridade, grau de parentesco,
+    tipo sanguíneo, tipos de logradouro e sim/não. Cada uma vira um arquivo do projeto com o
+    mesmo nome (<code>paises.json</code> serve a <code>@paises</code>), que você pode editar.
+  </li>
+  <li>
+    Largura: sem <code>{N}</code>, a lista divide a linha como um campo de 8 caracteres;
+    sozinha, ocupa a linha inteira. Com <code>{N}</code>, fica com N colunas.
+  </li>
+  <li>O nome do campo vem do rótulo (<code>estado</code>), não da lista.</li>
+</ul>
+
+<h2 id="ajuda-opcoes">Opções (escolha única e múltipla)</h2>
+<pre><code>--Sexo*                     --Interesses
+(M) Masculino               [ESP] Esportes
+(F) Feminino                [MUS] Música
+( ) Prefiro não informar</code></pre>
+<ul>
+  <li>
+    Sempre numa seção própria, uma opção por linha. O título da seção é a pergunta;
+    <code>*</code> nele = obrigatório.
+  </li>
+  <li>
+    <code>(valor)</code> = escolha única (rádio). <code>[valor]</code> = seleção múltipla: no
+    JSON, uma lista (<code>["ESP", "MUS"]</code>). Os dois não se misturam na mesma seção.
+  </li>
+  <li>Sem valor (<code>( )</code>, <code>[ ]</code>), o valor é o próprio texto: <code>"Prefiro não informar"</code>.</li>
+  <li>
+    A seção inteira é <strong>um campo só</strong>: não cria nível no JSON. <code>"sexo"</code>
+    fica no objeto da seção de cima.
+  </li>
+  <li>
+    Termina na primeira linha de outro tipo; o que vem depois volta à seção de cima. Numa
+    seleção múltipla, <code>[ ] Texto{nome}</code> ou <code>[ ] Texto*</code> já é uma
+    <a href="#ajuda-caixa">caixa de marcação</a> isolada.
+  </li>
+</ul>
+
+<h2 id="ajuda-texto-longo">Texto longo</h2>
+<pre><code>--Observações{obs}
+______________________________________________
+______________________________________________
+______________________________________________</code></pre>
+<ul>
+  <li>
+    Seção com linhas só de <code>_</code>: uma caixa de texto com tantas linhas de altura
+    quantas foram escritas (aqui, 3). Ocupa sempre a largura toda.
+  </li>
+  <li>
+    O título é o rótulo (<code>*</code> nele = obrigatório). Como as opções, é um campo só e
+    não cria nível no JSON.
+  </li>
+</ul>
+
+<h2 id="ajuda-caixa">Caixa de marcação</h2>
+<pre><code>[ ] Aceito os termos de uso{aceite}*</code></pre>
+<ul>
+  <li>
+    <code>[ ]</code> seguido do texto, fora de seção de opções. O texto fica ao lado da caixa
+    (a única exceção ao “rótulo acima”).
+  </li>
+  <li>No JSON, <code>true</code> ou <code>false</code>. Com <code>*</code>, precisa estar marcada no envio.</li>
+  <li>Pode dividir a linha com outros campos: <code>Nome: ____________   [ ] Ativo</code>.</li>
+</ul>
+
+<h2 id="ajuda-botoes">Botões</h2>
+<ul>
+  <li>
+    O <code>.form</code> não tem botões: botão é comando, e comando fica no JS da página. A
+    página sai com um só, <em>Enviar</em>.
+  </li>
+  <li>
+    Cada <code>form.action(nome, …)</code> registrado no JS da página vira um botão, na ordem do
+    registro: o primeiro é o principal (azul); os outros, secundários. Com ações registradas, o
+    <em>Enviar</em> só aparece se houver uma ação <code>enviar</code>. Veja
+    <a href="#ajuda-acoes">Ações</a>.
+  </li>
+  <li>Componentes não têm botões nem ações.</li>
+</ul>
+
+<h2 id="ajuda-nomes">Nomes e JSON</h2>
+<ul>
+  <li>
+    Sem chaves, o nome é o texto em minúsculas, sem acentos, com <code>_</code> no lugar do que
+    não é letra nem número: <code>Data de Nascimento</code> → <code>data_de_nascimento</code>,
+    <code>E-mail</code> → <code>e_mail</code>, <code>Nº</code> → <code>numero</code>.
+  </li>
+  <li>
+    Nomes repetidos na mesma seção ganham <code>_2</code>, <code>_3</code> (e um aviso). Em
+    seções diferentes, podem se repetir: <code>cep</code> em <code>residencial</code> e em
+    <code>comercial</code>.
+  </li>
+  <li>
+    <strong>No JS da página, o nome é o caminho completo</strong>, com as seções e inclusões:
+    <code>pessoais.nascimento</code>, <code>residencial.cep</code>. Só <code>'nascimento'</code>
+    não encontra o campo. No JS de um componente, os nomes são relativos à parte dele
+    (<code>'cep'</code>; veja <a href="#ajuda-js-componente">O JS do componente</a>).
+  </li>
+</ul>
+<p>O exemplo do início gera este JSON (veja o seu com <em>Coletar JSON</em>, na pré-visualização):</p>
+<pre><code>{
+  "pessoais": {
+    "nome": "Maria", "salario": 1234.56,
+    "cpf": "529.982.247-25", "nascimento": "1980-05-17"
+  },
+  "residencial": {
+    "cidade": "São Paulo", "estado": "SP", "cep": "01310-100"
+  },
+  "comercial": { "cidade": null, "estado": null, "cep": null },
+  "sexo": "F",
+  "obs": null,
+  "aceite": true
+}</code></pre>
+
+<h2 id="ajuda-larguras">Larguras</h2>
+<ul>
+  <li>
+    Cada linha de campos ocupa as 12 colunas da grade, divididas na proporção do tamanho com
+    que cada campo foi escrito: o número de <code>_</code> ou de caracteres da máscara
+    (<code>dd/mm/aaaa</code> = 10, CPF = 14). Caixa de marcação: o texto + 4. Lista: 8.
+  </li>
+  <li>
+    <code>Endereço: ________________________ Nº: ________ Complemento: ________</code> →
+    7 + 3 + 2 colunas.
+  </li>
+  <li>
+    <strong>Largura fixa:</strong> qualquer especificador com <code>{N}</code> no fim fica com N
+    colunas; o resto da linha é dividido entre os outros campos.
+    <code>Nome: ______{6}   CPF: 999.999.999-99</code> → 6 + 6 colunas;
+    <code>Telefone: (99) 99999-9999{4}</code>, <code>Salário: R$ ____{3}</code> e
+    <code>Estado: @estados{2}</code> também valem. As larguras fixas de uma linha somam no
+    máximo 12.
+  </li>
+  <li>
+    Cada campo tem pelo menos 1 coluna, então um campo curto ao lado de campos longos fica
+    estreito. Para alargar, escreva mais <code>_</code>, use <code>{N}</code> ou passe o campo
+    para outra linha.
+  </li>
+  <li>Em telas estreitas, cada campo ocupa a linha inteira.</li>
+</ul>
+
+<p class="ajuda-parte">O JS</p>
+
+<h2 id="ajuda-js">O JS da página</h2>
+<p>
+  O comportamento fica no JS, a aba ao lado da especificação: o <strong>JS da página</strong>
+  (<code>pages/clientes.js</code>) e o de cada componente
+  (<code>components/endereco.js</code>). Enquanto você não mexe nele, o JS é gerado a partir do
+  <code>.form</code>. Ao editar, ele passa a ser seu; <em>Voltar ao JS inicial</em> descarta as
+  mudanças.
+</p>
+<pre><code>import { Form, utils } from './forms.js';
+
+const form = new Form('#clientes');   // o nome do arquivo
+
+// As ações viram os botões.
+form.action('enviar', async ({ form, data }) =&gt; { … });
+
+// Chama o JS dos componentes; liga máscaras, listas e botões.
+await form.ready();</code></pre>
+<ul>
+  <li>
+    A página cuida do que é dela: as <strong>ações</strong> (os botões), as listas e regras dos
+    campos que estão nela e as regras que juntam partes. O que é de um componente fica no
+    <a href="#ajuda-js-componente">JS do componente</a>.
+  </li>
+  <li>
+    A página <strong>não importa nem chama</strong> o JS dos componentes: o
+    <code>form.ready()</code> faz isso sozinho, uma vez para cada seção de componente. O JS
+    inicial lista num comentário quem é chamado e com que parte.
+  </li>
+  <li>
+    Registre tudo <strong>antes</strong> de <code>await form.ready()</code>. Um erro antes dele
+    interrompe o JS, e a página fica sem máscaras, listas e botões. A lista de problemas avisa
+    quando isso acontece.
+  </li>
+  <li>
+    Os campos são sempre chamados pelo <strong>nome completo</strong>, com as seções e
+    inclusões: <code>pessoais.cpf</code>, não <code>cpf</code>.
+  </li>
+  <li>
+    O editor ajuda a escrever. Ao digitar <code>form.</code>, aparecem os métodos. Dentro das
+    aspas, aparecem os nomes deste formulário: campos em <code>form.field('</code> e
+    <code>{ name: '</code>, partes em <code>form.scope('</code>, listas em
+    <code>form.list('</code>, eventos em <code>form.on('</code> e arquivos de dados em
+    <code>fetch('</code> e <code>loadJson('</code>. Ao digitar <code>utils.</code>, aparecem
+    as <a href="#ajuda-utils">funções prontas</a>. Numa linha vazia,
+    <kbd>Ctrl</kbd>+<kbd>Espaço</kbd> oferece
+    instruções prontas (<code>form.action</code>, <code>form.list</code>,
+    <code>validator</code>, <code>calcField</code>…).
+  </li>
+  <li>
+    Opção do construtor: <code>new Form('#clientes', { literals: { cpf: false } })</code> faz o
+    CPF sair sem pontuação no JSON (<code>"52998224725"</code>). Vale por tipo
+    (<code>cpf</code>, <code>cnpj</code>, <code>cep</code>, <code>phone</code> e
+    <code>mask</code>, as posicionais); <code>literals: false</code> vale para todos.
+    <code>setData()</code> aceita os dois formatos.
+  </li>
+</ul>
+
+<h2 id="ajuda-js-componente">O JS do componente</h2>
+<p>
+  É uma função que recebe a <strong>parte</strong> do formulário onde o componente foi
+  incluído. O <code>form.ready()</code> da página a chama sozinho, uma vez para cada seção do
+  componente; dentro dela, os nomes são <strong>relativos</strong>: <code>'cep'</code> é o
+  <code>residencial.cep</code> numa chamada e o <code>comercial.cep</code> na outra.
+</p>
+<pre><code>// components/endereco.js
+import { utils } from '../forms.js';
+
+export default function endereco(parte) {
+  parte.list('estados', utils.loadJson('./estados.json'));
+  parte.validator({ name: 'cep' },
+    (valor) =&gt; valor !== '00000-000' || 'CEP inválido.');
+}</code></pre>
+<table class="table table-sm">
+  <tbody>
+    <tr><td><code>parte.list</code>, <code>validator</code>, <code>calcField</code>, <code>on</code>, <code>maskType</code></td><td>como no <code>form</code>, com nomes relativos; <code>{ selector }</code> e <code>list</code> valem só dentro da parte (a lista da parte vence a do formulário)</td></tr>
+    <tr><td><code>parte.field(nome)</code>, <code>fields(alvo)</code>, <code>reloadList(alvo)</code></td><td>sem alvo, todos os campos da parte</td></tr>
+    <tr><td><code>parte.validate()</code></td><td>valida só a parte</td></tr>
+    <tr><td><code>parte.getData()</code><br><code>parte.setData(json)</code></td><td>o objeto da parte no JSON / preenche só a parte</td></tr>
+    <tr><td><code>parte.clear()</code>, <code>readOnly(flag)</code></td><td>só os campos da parte</td></tr>
+    <tr><td><code>parte.scope(nome)</code></td><td>uma parte dentro desta (a seção de um componente incluído por este)</td></tr>
+    <tr><td><code>parte.prefix</code></td><td>onde a parte está (<code>'residencial'</code>)</td></tr>
+  </tbody>
+</table>
+<ul>
+  <li>
+    A parte <strong>não tem ações</strong> (nem <code>ready</code> e <code>messages</code>): os
+    botões são da página.
+  </li>
+  <li>
+    Um componente que inclui outro também não chama o JS dele: o <code>form.ready()</code> chama
+    todos, de fora para dentro.
+  </li>
+  <li>
+    Se o JS não carrega, não exporta a função ou dá erro, aparece na lista de problemas com o
+    arquivo e a linha; o resto da página continua funcionando.
+  </li>
+  <li>
+    Com o componente aberto, a pré-visualização chama a função com o formulário inteiro como
+    parte, para testar o componente sozinho.
+  </li>
+</ul>
+
+<h2 id="ajuda-alvos">Alvos</h2>
+<p>
+  <code>validator</code>, <code>on</code>, <code>validate</code>, <code>reloadList</code> e
+  <code>fields</code> recebem um <strong>alvo</strong>, sempre explícito:
+</p>
+<pre><code>{ name: 'pessoais.cpf' }                        // um campo
+{ name: ['residencial.cep', 'comercial.cep'] }  // vários campos
+{ selector: '[data-mask="dd/mm/aaaa"]' }        // seletor CSS</code></pre>
+<ul>
+  <li>
+    Não há curingas. Um nome que não existe gera um aviso com o nome completo sugerido
+    (<code>"cpf"</code> → <code>"pessoais.cpf"</code>), e o alvo não tem efeito para esse nome.
+  </li>
+  <li>
+    O seletor é procurado dentro do formulário, na hora do uso: vale também para mudanças feitas
+    à mão no HTML.
+  </li>
+</ul>
+
+<h2 id="ajuda-js-listas">Listas</h2>
+<pre><code>form.list('estados', async ({ form, field, data }) =&gt; {
+  const resposta = await fetch('./estados.json');
+  return resposta.json();
+  // [{ value: 'SP', label: 'São Paulo' }, …] ou ['SP', 'RJ']
+});</code></pre>
+<ul>
+  <li>
+    O provedor devolve um <strong>array</strong> (<code>null</code> = lista vazia). Esquecer o
+    <code>.json()</code> é o erro mais comum, e a lista de problemas avisa: “recebeu Response;
+    faltou .json()?”.
+  </li>
+  <li>
+    É chamado a cada <code>ready()</code> e <code>reloadList()</code>, sem cache.
+    <code>data</code> é o JSON do formulário naquele momento e <code>field</code> é o campo da
+    lista.
+  </li>
+  <li>Sem <code>form.list</code>, o <code>&lt;select&gt;</code> fica como está no HTML.</li>
+  <li>
+    Para só ler um arquivo, há um provedor pronto:
+    <code>form.list('estados', utils.loadJson('./estados.json'))</code>
+    (<a href="#ajuda-utils">funções prontas</a>).
+  </li>
+</ul>
+<p>
+  Lista que depende de outro campo, no JS de um componente com <code>Estado: @estados</code> e
+  <code>Cidade: @cidades</code> (<code>buscarCidades</code> é uma função sua). Cada inclusão
+  tem a sua parte, então a cidade segue o estado do mesmo endereço:
+</p>
+<pre><code>parte.list('cidades', async () =&gt; {
+  const uf = parte.field('estado').value;
+  return uf ? buscarCidades(uf) : [];
+});
+parte.on('change', { name: 'estado' },
+  () =&gt; parte.reloadList({ name: 'cidade' }));</code></pre>
+
+<h2 id="ajuda-acoes">Ações (os botões)</h2>
+<pre><code>form.action('enviar', async ({ form, data, button }) =&gt; {
+  if (!form.validate({ focus: true }).valid) return;
+  const r = await fetch('/api/clientes', {
+    method: 'POST', body: JSON.stringify(data),
+  });
+  // 422: o servidor devolveu [{ field, message }]
+  if (r.status === 422) return { errors: await r.json() };
+});
+form.action('cancelar', () =&gt; history.back(),
+  { label: 'Voltar' });</code></pre>
+<ul>
+  <li>
+    Cada ação vira um botão, na ordem do registro: aqui, <em>Enviar</em> (o principal) e
+    <em>Voltar</em>. O texto vem de <code>label</code> ou do nome
+    (<code>gravar_rascunho</code> → “Gravar rascunho”). Sem nenhuma ação, a página mostra só
+    <em>Enviar</em>.
+  </li>
+  <li>
+    Clicar num botão <strong>não valida nada</strong> sozinho: chame <code>form.validate()</code>
+    quando quiser. <code>data</code> é o JSON no momento do clique.
+  </li>
+  <li>Enquanto o callback não termina, os botões ficam desabilitados.</li>
+  <li>
+    Devolver <code>{ errors: [{ field: 'pessoais.cpf', message: '…' }] }</code> mostra esses
+    erros nos campos (útil para a resposta do servidor).
+  </li>
+  <li>
+    Uma exceção no callback vira o evento <code>fm:error</code>. Clicar no <em>Enviar</em> sem
+    <code>form.action('enviar', …)</code> gera um aviso.
+  </li>
+</ul>
+
+<h2 id="ajuda-validadores">Validadores</h2>
+<pre><code>form.validator({ name: 'pessoais.nascimento' }, (valor) =&gt; {
+  const hoje = new Date().toISOString().slice(0, 10);
+  return valor &lt;= hoje || 'A data não pode ser futura.';
+});
+form.validator({ selector: '[data-mask="R$"]' },
+  (valor) =&gt; valor &gt;= 0 || 'Informe um valor positivo.');</code></pre>
+<ul>
+  <li>
+    Devolva <code>true</code> (válido) ou o texto do erro. Só validadores síncronos. O 2º
+    parâmetro traz <code>{ form, field, data }</code>.
+  </li>
+  <li>
+    <code>valor</code> é o valor do JSON (data <code>"1980-05-17"</code>, moeda
+    <code>1234.56</code>). Com o campo vazio, o validador não é chamado: vazio é assunto do
+    <code>*</code>.
+  </li>
+  <li>
+    Vários por campo. A ordem é obrigatório, depois a máscara, depois os validadores na ordem
+    em que foram registrados. Para no primeiro erro e mostra só ele.
+  </li>
+  <li>
+    Rodam ao sair do campo (depois do primeiro erro, a cada tecla) e em
+    <code>form.validate()</code>.
+  </li>
+</ul>
+<p>
+  Validação para todos os campos de uma máscara (<code>pisValido</code> é uma função sua). Aceita
+  também <code>literals</code>:
+</p>
+<pre><code>form.maskType('999.99999.99-9', {
+  validate: (valor) =&gt; pisValido(valor) || 'PIS inválido.',
+});</code></pre>
+
+<h2 id="ajuda-calculados">Campos calculados</h2>
+<pre><code>form.calcField('pedido.total',
+  ['pedido.quantidade', 'pedido.preco'],
+  (qtd, preco) =&gt; (qtd &amp;&amp; preco ? qtd * preco : null));</code></pre>
+<ul>
+  <li>
+    1º parâmetro: o campo calculado. 2º: as dependências. 3º: a função, que recebe os valores
+    das dependências (os do JSON), na mesma ordem, e devolve o valor do campo.
+  </li>
+  <li>
+    O campo fica somente leitura. É recalculado em <code>ready()</code>, quando uma dependência
+    muda e depois de <code>setData()</code>.
+  </li>
+  <li>Pode depender de outro campo calculado; um ciclo é erro.</li>
+  <li>
+    Um nome que não existe é <strong>erro</strong>: o JS para ali (e com ele as máscaras). A
+    mensagem sugere o nome completo.
+  </li>
+  <li>
+    Idade, prazos, somas e médias já têm função pronta, que vai direto no 3º parâmetro:
+    <code>calcField('idade', ['nascimento'], utils.dateDiffYears)</code>.
+  </li>
+</ul>
+
+<h2 id="ajuda-utils">Funções prontas (<code>utils</code>)</h2>
+<p>
+  Vêm do runtime junto com o <code>Form</code> e servem <strong>direto</strong> como provedor
+  de lista ou como função de <code>calcField</code>. A página importa
+  <code>{ Form, utils }</code> de <code>'./forms.js'</code>; o componente, <code>{ utils }</code>
+  de <code>'../forms.js'</code>. O JS inicial já vem com o import.
+</p>
+<pre><code>parte.list('estados', utils.loadJson('./estados.json'));
+parte.calcField('idade', ['nascimento'], utils.dateDiffYears);
+form.calcField('prazo', ['inicio', 'fim'], utils.dateDiffDays);
+form.calcField('total', ['valor1', 'valor2'], utils.sum);</code></pre>
+<table class="table table-sm">
+  <tbody>
+    <tr><td><code>loadJson(url)</code></td><td>provedor de lista que lê o JSON (URL relativa à página); <code>url</code> pode ser <code>({ data }) =&gt; url</code></td></tr>
+    <tr><td><code>dateDiffYears</code></td><td>anos completos (trunca)</td></tr>
+    <tr><td><code>dateDiffYearsFrac</code></td><td>anos com a fração do ano em curso</td></tr>
+    <tr><td><code>dateDiffMonths</code></td><td>meses completos (trunca)</td></tr>
+    <tr><td><code>dateDiffMonthsFrac</code></td><td>meses com a fração do mês em curso</td></tr>
+    <tr><td><code>dateDiffDays</code></td><td>dias</td></tr>
+    <tr><td><code>sum</code>, <code>avg</code></td><td>soma, média</td></tr>
+    <tr><td><code>min</code>, <code>max</code></td><td>menor, maior</td></tr>
+  </tbody>
+</table>
+<ul>
+  <li>
+    <strong>Datas</strong>: com uma dependência, a diferença é até <strong>hoje</strong>; com
+    duas, é <strong>fim − início</strong> (negativa se o fim vier antes). Faltando uma das
+    datas, o resultado é <code>null</code>; a segunda vazia não vira hoje.
+  </li>
+  <li>
+    O ano e o mês vencem no dia de mesmo número. Se ele não existe no mês (29/02, dia 31),
+    vencem no dia seguinte (Lei 810/1949): quem nasceu em 29/02/2000 fez 1 ano em 01/03/2001.
+  </li>
+  <li>
+    A fração é a parte já decorrida do ano ou do mês em curso, em dias: de 01/01 a 02/07/2025
+    são 182/365.
+  </li>
+  <li>
+    <strong>Números</strong>: <code>sum</code>, <code>avg</code>, <code>min</code> e
+    <code>max</code> usam só o que estiver preenchido. Basta um valor:
+    <code>sum(10, null)</code> é 10 e <code>avg(4, null, 8)</code> é 6. São <code>null</code>
+    só quando não há nenhum.
+  </li>
+  <li>
+    Também valem no seu código, com mais argumentos ou arrays:
+    <code>utils.sum(itens.map((i) =&gt; i.valor))</code>.
+  </li>
+</ul>
+
+<h2 id="ajuda-dados">Dados e estado</h2>
+<table class="table table-sm">
+  <tbody>
+    <tr><td><code>form.getData()</code></td><td>o JSON do formulário (veja <a href="#ajuda-nomes">Nomes e JSON</a>)</td></tr>
+    <tr><td><code>form.setData(json)</code></td><td>preenche a partir do JSON; o que não vier fica vazio. Com <code>{ clear: false }</code>, o que não vier fica como está</td></tr>
+    <tr><td><code>form.validate()</code></td><td>valida tudo, inclusive os obrigatórios, mostra os erros e devolve <code>{ valid, errors }</code>. Opções: <code>{ focus: true }</code> leva ao primeiro erro; <code>{ target: alvo }</code> valida só o alvo</td></tr>
+    <tr><td><code>form.showErrors(erros)</code></td><td>mostra erros vindos de fora: <code>[{ field, message }]</code></td></tr>
+    <tr><td><code>form.clear()</code></td><td>esvazia todos os campos e limpa os erros</td></tr>
+    <tr><td><code>form.readOnly(true)</code></td><td>o formulário inteiro somente leitura; <code>false</code> desfaz (os calculados continuam somente leitura)</td></tr>
+    <tr><td><code>form.reloadList(alvo)</code></td><td>chama de novo os provedores das listas do alvo (sem alvo, de todas)</td></tr>
+    <tr><td><code>form.field(nome)</code><br><code>form.fields(alvo)</code></td><td>um campo (ou <code>null</code>) / vários; veja <a href="#ajuda-field">Campos</a></td></tr>
+    <tr><td><code>form.scope(caminho)</code></td><td>a parte de uma seção, com nomes relativos (é o que o JS de cada componente recebe; veja <a href="#ajuda-js-componente">O JS do componente</a>)</td></tr>
+    <tr><td><code>form.element</code></td><td>o elemento <code>&lt;form&gt;</code></td></tr>
+    <tr><td><code>form.destroy()</code></td><td>desliga o formulário (remove os ouvintes)</td></tr>
+  </tbody>
+</table>
+
+<h2 id="ajuda-field">Campos</h2>
+<pre><code>const cep = form.field('residencial.cep');
+cep.value = '01310100';   // formata: "01310-100"
+cep.visible = false;
+const moedas = form.fields({ selector: '[data-mask="R$"]' });</code></pre>
+<table class="table table-sm">
+  <tbody>
+    <tr><td><code>value</code></td><td>o valor do JSON; atribuir formata, dispara <code>fm:change</code> e recalcula quem depende do campo</td></tr>
+    <tr><td><code>text</code></td><td>o texto exibido (só leitura)</td></tr>
+    <tr><td><code>required</code></td><td>obrigatório</td></tr>
+    <tr><td><code>enabled</code></td><td><code>false</code> desabilita</td></tr>
+    <tr><td><code>readOnly</code></td><td>somente leitura</td></tr>
+    <tr><td><code>visible</code></td><td><code>false</code> esconde o campo com o rótulo</td></tr>
+    <tr><td><code>error</code></td><td>mensagem de erro exibida; <code>''</code> limpa</td></tr>
+    <tr><td><code>min</code>, <code>max</code></td><td>limites dos números (<code>data-min</code> / <code>data-max</code>)</td></tr>
+    <tr><td><code>mask</code></td><td>a máscara (<code>data-mask</code>); trocar muda o formato e a validação</td></tr>
+    <tr><td><code>name</code></td><td>o nome completo</td></tr>
+    <tr><td><code>element</code><br><code>elements</code></td><td>o controle (nas opções, o <code>&lt;fieldset&gt;</code>) / todos os controles do campo</td></tr>
+    <tr><td><code>kind</code></td><td><code>'input'</code>, <code>'select'</code>, <code>'radio'</code>, <code>'checks'</code> (seleção múltipla) ou <code>'check'</code> (caixa)</td></tr>
+  </tbody>
+</table>
+
+<h2 id="ajuda-mensagens">Mensagens</h2>
+<pre><code>form.messages({
+  required: 'Obrigatório.',
+  cpf: 'Confira o CPF.',
+});</code></pre>
+<table class="table table-sm">
+  <thead><tr><th>Chave</th><th>Padrão</th></tr></thead>
+  <tbody>
+    <tr><td><code>required</code></td><td>Campo obrigatório.</td></tr>
+    <tr><td><code>incomplete</code></td><td>Preencha no formato {mask}.</td></tr>
+    <tr><td><code>date</code></td><td>Data inválida.</td></tr>
+    <tr><td><code>time</code></td><td>Hora inválida.</td></tr>
+    <tr><td><code>cpf</code></td><td>CPF inválido.</td></tr>
+    <tr><td><code>cnpj</code></td><td>CNPJ inválido.</td></tr>
+    <tr><td><code>email</code></td><td>E-mail inválido.</td></tr>
+    <tr><td><code>number</code></td><td>Número inválido.</td></tr>
+    <tr><td><code>digits</code></td><td>Use no máximo {digits} dígitos.</td></tr>
+    <tr><td><code>min</code></td><td>O valor mínimo é {min}.</td></tr>
+    <tr><td><code>max</code></td><td>O valor máximo é {max}.</td></tr>
+    <tr><td><code>invalid</code></td><td>Valor inválido.</td></tr>
+  </tbody>
+</table>
+<p><code>{mask}</code>, <code>{digits}</code>, <code>{min}</code> e <code>{max}</code> são trocados pelo valor de cada campo.</p>
+
+<h2 id="ajuda-eventos">Eventos</h2>
+<pre><code>const parar = form.on('change', { name: 'residencial.cep' },
+  ({ value, old }) =&gt; console.log(old, '→', value));
+form.on('invalid', ({ errors }) =&gt; console.log(errors));
+parar();   // deixa de escutar</code></pre>
+<ul>
+  <li>
+    <code>form.on(evento, alvo, (detail, e) =&gt; …)</code>. O alvo é opcional e só filtra o
+    <code>change</code>, o único evento de um campo. Devolve a função que cancela a escuta.
+  </li>
+  <li>
+    São <code>CustomEvent</code> disparados no <code>&lt;form&gt;</code>, com o prefixo
+    <code>fm:</code>, e sobem pela página: <code>form.element.addEventListener('fm:change', (e) =&gt; e.detail)</code>
+    também funciona, inclusive fora do JS da página.
+  </li>
+</ul>
+<table class="table table-sm">
+  <thead><tr><th>Evento</th><th>Quando</th><th><code>detail</code></th></tr></thead>
+  <tbody>
+    <tr><td><code>ready</code></td><td>no fim de <code>form.ready()</code></td><td><code>{ form }</code></td></tr>
+    <tr><td><code>change</code></td><td>o valor de um campo mudou: ao sair do campo, ao escolher numa lista, opção ou caixa, ao atribuir <code>field.value</code>, depois de <code>setData()</code> e <code>clear()</code> e quando um campo calculado é recalculado</td><td><code>{ field, value, old }</code></td></tr>
+    <tr><td><code>action</code></td><td>clique num botão, antes do callback; <code>e.preventDefault()</code> cancela a ação</td><td><code>{ action, data }</code></td></tr>
+    <tr><td><code>invalid</code></td><td><code>validate()</code> ou <code>showErrors()</code> com erros</td><td><code>{ errors }</code></td></tr>
+    <tr><td><code>error</code></td><td>exceção num provedor de lista, numa ação, num validador ou num calculado; lista que não devolveu array; botão sem ação</td><td><code>{ error, source }</code>, com <code>source</code> <code>'list'</code>, <code>'action'</code>, <code>'validator'</code> ou <code>'calc'</code></td></tr>
+  </tbody>
+</table>
+<p>Exemplo: pedir confirmação antes de cancelar.</p>
+<pre><code>form.on('action', ({ action }, e) =&gt; {
+  if (action !== 'cancelar') return;
+  if (!confirm('Descartar as mudanças?')) e.preventDefault();
+});</code></pre>
+
+<h2 id="ajuda-previa">Na pré-visualização</h2>
+<ul>
+  <li>
+    O JS da página e o dos componentes rodam com o runtime de verdade, um instante depois que
+    você para de digitar. Um componente aberto aparece sozinho, sem botões.
+  </li>
+  <li>
+    <code>utils.loadJson('./estados.json')</code> e <code>fetch('./estados.json')</code> leem o
+    arquivo de dados do projeto.
+  </li>
+  <li>
+    Erros e avisos do JS aparecem na lista de problemas, embaixo do editor, com o arquivo e a
+    linha (<code>components/endereco.js 3: …</code>). Clique para ir até ela, mesmo que seja em
+    outro arquivo.
+  </li>
+  <li>
+    <em>Validar</em> chama <code>form.validate()</code> e <em>Coletar JSON</em> mostra
+    <code>form.getData()</code>. Ao clicar num botão do formulário, aparece o JSON da ação.
+  </li>
+  <li>
+    <em>Estrutura</em> mostra os dados do formulário: cada campo com o caminho no JSON
+    (<code>residencial.cep</code>), o tipo, o valor no JSON (<code>string</code>,
+    <code>number</code>, <code>boolean</code>…), se pode ficar <strong>nulo</strong> (vazio vira
+    <code>null</code>; os obrigatórios são “não nulo”) e os detalhes, e um exemplo do JSON.
+    Serve para quem vai receber os dados.
+  </li>
+  <li>
+    <em>HTML</em>, ao lado de <em>Página</em>, mostra o código-fonte gerado, exatamente o
+    <code>.html</code> que vai no zip (só leitura; dá para copiar). A letra dessa vista tem
+    os seus próprios A− / A+, separados dos do editor.
+  </li>
+  <li>
+    As divisórias entre os painéis se arrastam para mudar a largura; duplo clique volta ao
+    padrão.
+  </li>
+  <li><code>console.log</code> vai para o console do navegador (F12).</li>
+</ul>

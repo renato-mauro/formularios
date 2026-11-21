@@ -1,12 +1,13 @@
-// Monta packages/web/dist: a interface mais cópias do gerador e do runtime em
-// vendor/ (cópia simples, sem bundler), com o import map apontando para elas.
-// A pasta dist/ inteira pode ir para qualquer hospedagem estática.
+// Monta docs/ na raiz do repositório: a interface mais cópias do gerador e do
+// runtime em vendor/ (cópia simples, sem bundler), com o import map apontando
+// para elas. É o site do GitHub Pages (main, pasta /docs) e pode ir para
+// qualquer hospedagem estática.
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const WEB = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DIST = path.join(WEB, 'dist');
+const DIST = path.resolve(WEB, '../../docs');
 const VENDOR = { gerador: '@formularios/gerador', runtime: '@formularios/runtime' };
 
 await rm(DIST, { recursive: true, force: true });
@@ -33,4 +34,5 @@ const html = (await readFile(path.join(WEB, 'index.html'), 'utf8'))
     return `${open}\n  ${JSON.stringify(map, null, 2).replace(/\n/g, '\n  ')}${close}`;
   });
 await writeFile(path.join(DIST, 'index.html'), html);
-console.log(`gravado: ${path.relative(process.cwd(), DIST) || '.'}${path.sep}`);
+await writeFile(path.join(DIST, '.nojekyll'), ''); // o GitHub Pages serve os arquivos como estão
+console.log(`gravado: ${path.relative(path.resolve(WEB, '../..'), DIST)}${path.sep}`);

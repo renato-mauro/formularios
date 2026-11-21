@@ -939,7 +939,7 @@ npx formularios build projeto/ saida/                    # gera as páginas de p
 npx formularios build projeto.zip saida/                 # o mesmo, a partir do zip de projeto do P2
 npx formularios check projeto/                           # só valida (páginas e componentes)
 npm start                                               # servidor local (interface web e exemplo)
-npm run build                                           # site estático do P2 em packages/web/dist
+npm run build                                           # site estático do P2 em docs/ (GitHub Pages)
 npm run exemplo                                         # recria examples/saida a partir de examples/clientes
 npm test                                                # testes de todos os pacotes (node --test)
 ```
@@ -996,6 +996,29 @@ npm test                                                # testes de todos os pac
   `@lista` sem arquivo), enviar do disco, renomear, excluir; editor de JSON com
   aviso de JSON inválido. Na pré-visualização, `fetch('./x.json')` recebe o
   arquivo do projeto.
+- **Coleção de listas prontas** (botão *Coleção* em Dados): `src/colecao/`
+  (`index.json` com título e descrição de cada uma, e um `.json` por lista, no
+  formato das listas): estados do Brasil, regiões, países (ISO 3166-1, nomes em
+  português), meses, dias da semana, estado civil, escolaridade, grau de
+  parentesco, tipo sanguíneo, tipos de logradouro, sim/não. A janela mostra cada
+  uma com o número de itens e uma amostra; as `@listas` do formulário aberto sem
+  arquivo já vêm marcadas; as que o projeto já tem ficam desabilitadas. Importar
+  cria o arquivo de dados com o mesmo nome (`estados.json`), que passa a ser do
+  usuário. Vai junto no site (buscada só na primeira vez).
+- **Assistente de campo** (botão *+ Campo* na barra do editor, na aba do `.form`):
+  tipo (os da linha de campos — texto, e-mail, inteiro, decimal, moeda, data,
+  hora, CPF, CNPJ, CEP, celular, telefone, código, máscara personalizada, lista,
+  caixa de marcação — e os de seção própria — escolha única, múltipla escolha,
+  texto longo), rótulo, nome no JSON (o padrão é o slug; `{nome}` só sai quando
+  difere), obrigatório e os parâmetros do tipo (tamanho, dígitos, casas
+  decimais, máscara, nome e itens da lista, largura `{N}`, opções, linhas). Mostra
+  a linha do `.form` que vai entrar e o erro, se houver (o gerador confere).
+  Insere numa linha nova depois da linha do cursor (dentro de uma seção fechada —
+  opções, texto longo, componente —, depois dela; numa linha vazia, nela) ou ao
+  lado dos campos da linha do cursor. Seções novas nascem no nível da seção aberta
+  ali (no máximo 3). Lista com itens da coleção importa o arquivo junto; opções
+  podem ser preenchidas com uma lista da coleção. A inserção entra no desfazer do
+  editor. A regra fica em `src/campo.js` (puro, testado).
 - **Editores** (CodeMirror, ver §2): destaque de sintaxe no `.form`, no JS e no
   JSON; desfazer, busca, parênteses. **Autocompletar e snippets da biblioteca**
   no JS: membros de `Form` (`form.`), da parte (`parte.`, o parâmetro do
@@ -1032,6 +1055,14 @@ npm test                                                # testes de todos os pac
   lista de 180 a 480 px, editor a partir de 280 px, pré-visualização com pelo
   menos 300 px. As larguras ficam guardadas no navegador. Em telas estreitas
   (< 900 px) os painéis empilham e as divisórias somem.
+- **Estrutura** (terceira opção, ao lado de Página / HTML): a estrutura de dados do
+  formulário aberto, para quem vai receber o JSON. Uma tabela com cada seção e cada
+  campo: caminho no JSON, rótulo, tipo, valor no JSON (§7: `string`, `string
+  aaaa-mm-dd`, `number`, `boolean`, `string[]`), **nulo / não nulo** (não nulo =
+  obrigatório; a caixa de marcação é sempre `true`/`false`), detalhes (máscara,
+  dígitos, valores das opções, a lista e o arquivo dela com o número de itens),
+  colunas e o componente de origem; e um **exemplo do JSON**. Num componente, os
+  caminhos são relativos a ele. A regra fica em `src/estrutura.js` (puro, testado).
 - **Página / HTML** na barra da pré-visualização: alterna entre a página rodando e
   o **código-fonte do HTML**, exatamente o `<nome>.html` do zip de HTMLs
   (`render(ast, { page: true })`; num componente, o trecho `<form>` dele, sem
@@ -1039,7 +1070,7 @@ npm test                                                # testes de todos os pac
   para selecionar, copiar e buscar). Acompanha o `.form` sem perder a rolagem e
   usa o tema. Nessa vista, a barra troca Validar / Coletar JSON / Recarregar por
   botões A− / A+ próprios (mesmos limites dos editores, tamanho guardado à parte).
-  A escolha entre Página e HTML fica guardada no navegador.
+  A escolha entre Página, HTML e Estrutura fica guardada no navegador.
 - **Pré-visualização** em `<iframe>` (~300 ms após parar de digitar): a página
   gerada mais o JS da página e dos componentes, rodando com o runtime de verdade.
   O JS de cada componente vira um módulo `blob:`, e um import map leva
@@ -1060,9 +1091,11 @@ npm test                                                # testes de todos os pac
   cada página, `components/y.js` de cada componente usado (escrito ou inicial), os
   arquivos de dados e o runtime. Não baixa se alguma página tiver erro ou se não
   houver página.
-- Publicação: `npm run build` monta `packages/web/dist` com cópias do gerador e do
-  runtime em `vendor/` e o import map apontando para elas; a pasta vai para
-  qualquer hospedagem estática.
+- Publicação: `npm run build` monta `docs/` (na raiz do repositório) com cópias do
+  gerador e do runtime em `vendor/` e o import map apontando para elas. `docs/` vai
+  no git e é o site do GitHub Pages (`main`, pasta `/docs`); serve em qualquer
+  hospedagem estática. `npm run pages` testa, monta e serve só `docs/` em
+  `/formularios/`, como no Pages.
 
 ### 10.3 Zip de projeto
 
@@ -1108,18 +1141,21 @@ packages/web/                     # P2 @formularios/web
   src/store.js                    #   localStorage
   src/preview.js                  #   documento da pré-visualização e módulos dos componentes
   src/zip.js                      #   zip (CompressionStream)
-  scripts/build.js                #   -> dist/ (fora do git)
+  src/campo.js, src/assistente.js #   assistente de campo: a regra (pura) e a janela
+  src/estrutura.js                #   estrutura de dados do formulário (vista Estrutura)
+  src/colecao.js, src/colecao/    #   coleção de listas prontas (index.json + um .json por lista)
+  scripts/build.js                #   -> docs/
 packages/cli/                     # P4 @formularios/cli
   bin/formularios.js              #   comando
   src/input.js                    #   pasta ou zip do projeto -> arquivos
   src/plan.js                     #   o que gravar
   src/zip.js                      #   leitor de zip (node:zlib)
 packages/*/test/                  # node --test
-scripts/serve.js                  # servidor local (--pages: só o dist, em /formularios/)
+scripts/serve.js                  # servidor local (--pages: só docs/, em /formularios/)
 examples/clientes/                # exemplo da §3.1: pages/clientes.form e .js, components/ (pessoa,
                                   #   endereco, com o JS de cada um), estados.json
 examples/saida/                   # gerado (npm run exemplo; fora do git)
-scripts/publicar.js               # npm run publicar: dist -> branch gh-pages (GitHub Pages) e push
+docs/                             # gerado (npm run build): o site do GitHub Pages, vai no git
 ```
 
 ---
@@ -1158,7 +1194,7 @@ scripts/publicar.js               # npm run publicar: dist -> branch gh-pages (G
 16. O mesmo módulo do gerador roda na interface web (navegador) e na CLI (Node).
 17. Um projeto baixado da interface web e enviado de volta volta igual; a CLI gera
     a partir desse zip o mesmo que a interface põe no zip de HTMLs.
-18. `packages/web/dist` funciona sozinho numa hospedagem estática.
+18. `docs/` funciona sozinho numa hospedagem estática (GitHub Pages).
 19. Com `estados.json` no projeto, a lista `@estados` de um componente aparece
     preenchida na pré-visualização, no zip de HTMLs e na saída da CLI, sem editar
     o JS inicial.

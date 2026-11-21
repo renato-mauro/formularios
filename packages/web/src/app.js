@@ -1,9 +1,13 @@
 // Interface web: projetos de formulários guardados no navegador — páginas,
-// componentes e arquivos de dados —, edição do .form e do JS de cada um,
-// pré-visualização com o runtime e zips de projeto e de HTMLs.
+// componentes e arquivos de dados —, edição do .form e do JS de cada um (com o
+// assistente de campo), pré-visualização com o runtime, resumo da estrutura de
+// dados, coleção de listas prontas e zips de projeto e de HTMLs.
 import { componentsOf, formatIssue, render, slug } from '@formularios/gerador';
 import { outline } from './api.js';
+import { assistenteDeCampo } from './assistente.js';
+import { escolherDaColecao } from './colecao.js';
 import { codeEditor } from './editor.js';
+import { estrutura } from './estrutura.js';
 import {
   addData, addForm, buildZip, components, dataFiles, exportProject, formName, formPath, generateForm, importProject,
   pageFile, pages, removeData, removeForm, renameData, renameForm, RUNTIME_FILES, scriptFile, scriptOf, scriptPath,
@@ -17,7 +21,7 @@ const THEME_KEY = 'formularios.web.tema';
 const LETRA_KEY = 'formularios.web.letra'; // editores de código
 const LETRA_HTML_KEY = 'formularios.web.letra-html'; // vista HTML da pré-visualização
 const LETRA = { min: 10, max: 24, padrao: 13 }; // px
-const VISTA_KEY = 'formularios.web.previa'; // 'pagina' | 'html'
+const VISTA_KEY = 'formularios.web.previa'; // 'pagina' | 'html' | 'estrutura'
 const LARGURAS_KEY = 'formularios.web.larguras';
 
 const $ = (id) => document.getElementById(id);
@@ -48,6 +52,9 @@ const ui = {
   htmlLetra: $('html-letra'),
   verPagina: $('ver-pagina'),
   verHtml: $('ver-html'),
+  verEstrutura: $('ver-estrutura'),
+  estrutura: $('estrutura'),
+  campoAbrir: $('campo-abrir'),
   json: $('json'),
   jsonTitulo: $('json-titulo'),
   aviso: $('aviso'),
@@ -64,7 +71,7 @@ const storage = (() => {
 const state = load(storage);
 
 let tab = 'form';
-let vista = 'pagina'; // pré-visualização: a página rodando ou o HTML gerado
+let vista = 'pagina'; // pré-visualização: a página rodando, o HTML gerado ou a estrutura
 const larguras = {}; // { lista, editor } em px, das divisórias
 let ajudaCarregada = false;
 let selectedData = null; // id do arquivo de dados aberto no editor, ou null (formulário)
@@ -299,6 +306,7 @@ function renderEditor() {
   editors.form.hidden = !f || Boolean(d) || tab !== 'form';
   editors.script.hidden = !f || Boolean(d) || tab !== 'script';
   ui.scriptBarra.hidden = editors.script.hidden;
+  ui.campoAbrir.hidden = editors.form.hidden;
   editors.data.hidden = !d;
   for (const [aba, nome] of [[ui.abaForm, 'form'], [ui.abaScript, 'script']]) {
     aba.classList.toggle('active', tab === nome);
@@ -320,6 +328,7 @@ function refresh() {
   listProblems();
   renderScript(ok ? parsed.ast : null);
   renderVista();
+  renderEstrutura();
   if (!ok) {
     // Com erro, mantém a última pré-visualização boa do mesmo formulário.
     if (previewOf !== f?.id) {
@@ -366,23 +375,73 @@ function refresh() {
   ui.previa.srcdoc = doc.html;
 }
 
-// Pré-visualização: a página rodando ou o HTML que vai no zip (só leitura).
+// Pré-visualização: a página rodando, o HTML que vai no zip (só leitura) ou a
+// estrutura de dados (os campos, para quem vai receber o JSON).
 function renderVista() {
   const f = form();
   const html = vista === 'html';
-  ui.previa.hidden = html;
+  ui.previa.hidden = vista !== 'pagina';
   editors.html.hidden = !html;
-  ui.previaBotoes.hidden = html;
+  ui.estrutura.hidden = vista !== 'estrutura';
+  ui.previaBotoes.hidden = vista !== 'pagina';
   ui.htmlLetra.hidden = !html;
-  for (const [botao, nome] of [[ui.verPagina, 'pagina'], [ui.verHtml, 'html']]) {
+  for (const [botao, nome] of [[ui.verPagina, 'pagina'], [ui.verHtml, 'html'], [ui.verEstrutura, 'estrutura']]) {
     botao.classList.toggle('active', vista === nome);
     botao.setAttribute('aria-pressed', String(vista === nome));
   }
   const comp = f?.kind === 'component';
   if (!f) ui.previaTitulo.textContent = 'Pré-visualização';
+  else if (vista === 'estrutura') ui.previaTitulo.textContent = `${formPath(f)} — estrutura de dados${comp ? ' (caminhos relativos ao componente)' : ''}`;
   else if (html && comp) ui.previaTitulo.textContent = `${f.file} — o trecho que entra nas páginas (só leitura)`;
   else if (html) ui.previaTitulo.textContent = `${pageFile(f)} — como vai no zip (só leitura)`;
   else ui.previaTitulo.textContent = `Pré-visualização — ${formPath(f)}${comp ? ' (o componente sozinho)' : ''}`;
+}
+
+// Tabela dos campos (estrutura.js) e um exemplo do JSON. Com erro no .form, fica a
+// última estrutura boa, com um aviso.
+function renderEstrutura() {
+  if (vista !== 'estrutura') return;
+  const ok = parsed && !parsed.errors.length;
+  if (!ok) {
+    if (!ui.estrutura.childElementCount || previewOf !== form()?.id) ui.estrutura.textContent = 'Corrija os erros do .form para ver a estrutura.';
+    return;
+  }
+  const p = project();
+  const { linhas, exemplo } = estrutura(parsed.ast, { dados: Object.fromEntries(p.data.map((d) => [d.file, d.content])) });
+  const campos = linhas.filter((l) => l.tipo === 'campo');
+  const comComponente = linhas.some((l) => l.componente);
+  const cel = (tag, texto, cls) => {
+    const c = document.createElement(tag);
+    if (cls) c.className = cls;
+    c.textContent = texto;
+    return c;
+  };
+  const resumo = cel('p', `${campos.length} campo(s), ${campos.filter((c) => c.obrigatorio).length} obrigatório(s). `
+    + 'Campo vazio vira null no JSON; "não nulo" = obrigatório (validate() recusa vazio). '
+    + 'A caixa de marcação é sempre true/false.', 'text-secondary mb-2');
+  const tabela = document.createElement('table');
+  tabela.className = 'table table-sm table-hover align-middle';
+  const cab = ['Campo (caminho no JSON)', 'Rótulo', 'Tipo', 'No JSON', 'Nulo', 'Detalhes', 'Col.', ...(comComponente ? ['Componente'] : [])];
+  tabela.createTHead().insertRow().append(...cab.map((t) => cel('th', t)));
+  const corpo = tabela.createTBody();
+  for (const l of linhas) {
+    const tr = corpo.insertRow();
+    if (l.tipo === 'secao') {
+      tr.className = 'secao';
+      const td = cel('td', `${l.caminho} — ${l.rotulo ?? ''}${l.componente ? ` (+${l.componente})` : ''}`);
+      td.colSpan = cab.length;
+      tr.append(td);
+      continue;
+    }
+    tr.append(
+      cel('td', l.caminho, 'caminho'), cel('td', l.rotulo ?? ''), cel('td', l.tipoCampo), cel('td', l.json, 'font-monospace text-nowrap'),
+      cel('td', l.nulo ? 'nulo' : 'não nulo', `text-nowrap${l.nulo ? '' : ' nulo-nao'}`), cel('td', l.detalhes), cel('td', l.colunas ?? ''),
+      ...(comComponente ? [cel('td', l.componente ? `+${l.componente}` : '')] : []),
+    );
+  }
+  ui.estrutura.replaceChildren(
+    resumo, tabela, cel('h3', 'Exemplo do JSON', 'h6 mt-3'), cel('pre', JSON.stringify(exemplo, null, 2)),
+  );
 }
 
 function setVista(nome) {
@@ -391,6 +450,7 @@ function setVista(nome) {
     storage?.setItem(VISTA_KEY, vista);
   } catch { /* sem armazenamento: vale só nesta aba */ }
   renderVista();
+  renderEstrutura();
 }
 
 function renderScript(ast) {
@@ -560,6 +620,7 @@ const letraHtml = controleLetra('html-letra', LETRA_HTML_KEY, [editors.html]);
 
 ui.verPagina.addEventListener('click', () => setVista('pagina'));
 ui.verHtml.addEventListener('click', () => setVista('html'));
+ui.verEstrutura.addEventListener('click', () => setVista('estrutura'));
 
 ui.ajudaAbrir.addEventListener('click', () => toggleAjuda(ui.ajuda.hidden));
 $('ajuda-fechar').addEventListener('click', () => toggleAjuda(false));
@@ -679,6 +740,39 @@ $('dados-novo').addEventListener('click', () => {
   editors.data.focus();
 });
 
+// Coleção: listas prontas viram arquivos de dados do projeto (as @listas do
+// formulário aberto que ainda não têm arquivo já vêm marcadas).
+$('colecao-abrir').addEventListener('click', async () => {
+  const p = project();
+  const escolhidas = await escolherDaColecao($('colecao'), { noProjeto: dataFiles(p), sugeridas: info.lists });
+  if (!escolhidas.length) return;
+  let last = null;
+  for (const c of escolhidas) last = addData(p, c.file, c.content);
+  selectedData = last.id;
+  saveNow();
+  renderAll();
+  aviso(`Importado(s) da coleção: ${escolhidas.map((c) => c.file).join(', ')}.`);
+});
+
+// Assistente de campo: insere a linha do .form na posição do cursor (entra no
+// desfazer). Uma lista com itens da coleção traz o arquivo junto.
+ui.campoAbrir.addEventListener('click', async () => {
+  const f = form();
+  if (!f) return;
+  const p = project();
+  const r = await assistenteDeCampo($('campo'), {
+    fonte: editors.form.value, linha: editors.form.cursorLine, component: f.kind === 'component', dados: dataFiles(p),
+  });
+  if (!r) return editors.form.focus();
+  if (r.importar) {
+    addData(p, r.importar.file, r.importar.content);
+    renderLists();
+    aviso(`${r.importar.file} importado da coleção para a lista.`);
+  }
+  editors.form.edit(r.fonte, r.de, r.ate);
+  saveNow();
+});
+
 $('dados-enviar').addEventListener('change', async (e) => {
   const files = [...e.target.files];
   e.target.value = '';
@@ -772,7 +866,7 @@ try {
   ui.tema.value = storage?.getItem(THEME_KEY) || 'auto';
   letras.editor = Number(storage?.getItem(LETRA_KEY));
   letras.html = Number(storage?.getItem(LETRA_HTML_KEY));
-  vista = storage?.getItem(VISTA_KEY) === 'html' ? 'html' : 'pagina';
+  vista = ['html', 'estrutura'].includes(storage?.getItem(VISTA_KEY)) ? storage.getItem(VISTA_KEY) : 'pagina';
   salvas = JSON.parse(storage?.getItem(LARGURAS_KEY) || '{}') ?? {};
 } catch { /* sem armazenamento ou valor estragado */ }
 applyTheme();

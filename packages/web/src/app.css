@@ -161,6 +161,40 @@ body.redimensionando iframe { pointer-events: none; }
 }
 .ajuda-parte + h2 { margin-top: .75rem; }
 
+/* Estrutura: tabela dos campos, no lugar da prévia. */
+.app-estrutura { flex: 1; overflow: auto; padding: .5rem .75rem 1rem; }
+.app-estrutura table { font-size: .8125rem; }
+.app-estrutura th { position: sticky; top: 0; background: var(--bs-body-bg); white-space: nowrap; }
+.app-estrutura td.caminho { font-family: var(--bs-font-monospace); white-space: nowrap; }
+.app-estrutura tr.secao td { background: var(--bs-tertiary-bg); font-weight: 600; }
+.app-estrutura .nulo-nao { color: var(--bs-danger-text-emphasis); font-weight: 600; }
+.app-estrutura pre {
+  font-size: .75rem;
+  padding: .5rem .75rem;
+  background: var(--bs-tertiary-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+}
+
+/* Janelas (coleção, assistente de campo): <dialog> com as cores do tema. */
+.dialogo {
+  width: min(44rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  padding: 0;
+  color: var(--bs-body-color);
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-lg);
+  box-shadow: 0 .5rem 2rem rgba(0, 0, 0, .35);
+}
+.dialogo { overflow: hidden; }
+.dialogo > form { max-height: calc(100vh - 2rem - 2px); } /* menos a borda */
+.dialogo > form > .overflow-auto { min-height: 0; }
+.dialogo::backdrop { background: rgba(0, 0, 0, .4); }
+.campo-previa { min-height: 2.25rem; white-space: pre; overflow: auto; background: var(--bs-tertiary-bg); }
+.colecao-item { display: flex; gap: .6rem; align-items: flex-start; }
+.colecao-item .amostra { color: var(--bs-secondary-color); }
+
 @media (max-width: 900px) {
   .app { grid-template-columns: 1fr; grid-template-rows: min-content 50vh 70vh; overflow: auto; }
   .divisor { display: none; }

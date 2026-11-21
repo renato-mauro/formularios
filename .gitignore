@@ -1,6 +1,4 @@
 node_modules/
 .DS_Store
-# gerado por npm run build (o GitHub Actions monta e publica no Pages)
-packages/web/dist/
 # gerado por npm run exemplo
 examples/saida/

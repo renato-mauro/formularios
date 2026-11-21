@@ -140,6 +140,13 @@ CPF*: 999.999.999-99   Nascimento*: dd/mm/aaaa</code></pre>
     <tr><td>linha vazia</td><td>ignorada</td></tr>
   </tbody>
 </table>
+<p>
+  Sem decorar nada: o botão <strong>+ Campo</strong>, na barra do editor, abre o assistente.
+  Você escolhe o tipo, o rótulo, o nome no JSON, se é obrigatório e os parâmetros (tamanho,
+  dígitos, máscara, lista, opções, largura), vê a linha que vai entrar e insere. O campo entra
+  numa linha nova depois da do cursor, ou ao lado dos campos dela; Ctrl+Z desfaz. Numa lista,
+  os itens podem vir da coleção, e o arquivo vem junto.
+</p>
 
 <h2 id="ajuda-secoes">Título e seções</h2>
 <ul>
@@ -246,6 +253,12 @@ Estado: @estados{3}     ← sempre 3 colunas (de 1 a 12)</code></pre>
     Com um arquivo de dados <code>estados.json</code> no projeto (seção <em>Dados</em>, à
     esquerda), o JS inicial já lê o arquivo. Formato:
     <code>[{ "value": "SP", "label": "São Paulo" }]</code> ou <code>["SP", "RJ"]</code>.
+  </li>
+  <li>
+    Listas prontas: o botão <em>Coleção</em>, em <em>Dados</em>, importa estados do Brasil,
+    regiões, países, meses, dias da semana, estado civil, escolaridade, grau de parentesco,
+    tipo sanguíneo, tipos de logradouro e sim/não. Cada uma vira um arquivo do projeto com o
+    mesmo nome (<code>paises.json</code> serve a <code>@paises</code>), que você pode editar.
   </li>
   <li>
     Largura: sem <code>{N}</code>, a lista divide a linha como um campo de 8 caracteres;
@@ -795,6 +808,13 @@ parar();   // deixa de escutar</code></pre>
   <li>
     <em>Validar</em> chama <code>form.validate()</code> e <em>Coletar JSON</em> mostra
     <code>form.getData()</code>. Ao clicar num botão do formulário, aparece o JSON da ação.
+  </li>
+  <li>
+    <em>Estrutura</em> mostra os dados do formulário: cada campo com o caminho no JSON
+    (<code>residencial.cep</code>), o tipo, o valor no JSON (<code>string</code>,
+    <code>number</code>, <code>boolean</code>…), se pode ficar <strong>nulo</strong> (vazio vira
+    <code>null</code>; os obrigatórios são “não nulo”) e os detalhes, e um exemplo do JSON.
+    Serve para quem vai receber os dados.
   </li>
   <li>
     <em>HTML</em>, ao lado de <em>Página</em>, mostra o código-fonte gerado, exatamente o

@@ -17,6 +17,11 @@ Detalhes: §10.2 e §10.3 do `agentes.md`.
 - Pré-visualização: `src/preview.js` monta o documento do `<iframe>`; o JS de cada
   componente vira um módulo `blob:` (`linkComponents`), com os imports relativos
   religados.
+- Assistente de campo (`src/campo.js`, puro e testado, e `src/assistente.js`, a
+  janela), vista Estrutura (`src/estrutura.js`, puro e testado) e coleção de listas
+  prontas (`src/colecao/`: `index.json` e um `.json` por lista; `src/colecao.js`).
+  Para pôr uma lista na coleção, grave o `.json` em `src/colecao/` e cite-o no
+  `index.json` (o teste confere os dois).
 - Ajuda: `src/ajuda.html` é um fragmento HTML com a linguagem `.form`, os
   componentes e o JS (resumo do `agentes.md` §3, §4, §7 e §8). Ao mudar a
   linguagem ou a API do runtime, atualize os dois.
@@ -24,8 +29,9 @@ Detalhes: §10.2 e §10.3 do `agentes.md`.
 - Desenvolvimento: `npm start` na raiz do repositório e abra <http://localhost:8080/>.
   O `index.html` resolve `@formularios/gerador` e `@formularios/runtime` por import
   map, com caminhos do monorepo.
-- Publicação: `npm run build` gera `dist/`, com cópias do gerador e do runtime em
-  `dist/vendor/` e o import map apontando para elas. Copie a pasta inteira.
+- Publicação: `npm run build` gera `docs/` na raiz do repositório, com cópias do
+  gerador e do runtime em `docs/vendor/` e o import map apontando para elas. É o
+  site do GitHub Pages (`main`, pasta `/docs`); serve em qualquer hospedagem estática.
 
 Exporta, para quem precisar ler ou gravar o formato do projeto em JS:
 `@formularios/web/project` e `@formularios/web/zip` (os testes da CLI usam).

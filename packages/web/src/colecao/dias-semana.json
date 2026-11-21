@@ -1,0 +1,9 @@
+[
+  { "value": "dom", "label": "Domingo" },
+  { "value": "seg", "label": "Segunda-feira" },
+  { "value": "ter", "label": "Terça-feira" },
+  { "value": "qua", "label": "Quarta-feira" },
+  { "value": "qui", "label": "Quinta-feira" },
+  { "value": "sex", "label": "Sexta-feira" },
+  { "value": "sab", "label": "Sábado" }
+]

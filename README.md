@@ -52,6 +52,13 @@ Abra <http://localhost:8080/> (vai para a interface web). Lá você:
   strings e depois do `+`; Ctrl+Espaço mostra as sugestões) e vê o formulário
   funcionando ao lado, com o runtime de verdade — a página inteira ou o
   componente sozinho;
+- inclui campos pelo **assistente** (*+ Campo*): escolhe o tipo, o rótulo, o nome
+  no JSON, se é obrigatório e os parâmetros (tamanho, dígitos, máscara, lista,
+  opções, largura), vê a linha do `.form` e insere na posição do cursor;
+- importa listas prontas da **Coleção** (estados, países, meses, estado civil,
+  escolaridade...) como arquivos de dados do projeto;
+- vê a **Estrutura** de dados do formulário: cada campo com o caminho no JSON, o
+  tipo, nulo ou não nulo e os detalhes, e um exemplo do JSON;
 - renomeia um componente e as linhas `+nome` das páginas acompanham;
 - escolhe o **tema** (automático, claro ou escuro) no canto da barra; a
   pré-visualização fica sempre clara, como a página publicada;
@@ -79,20 +86,17 @@ igual.
 Para publicar a interface num site estático:
 
 ```bash
-npm run build      # gera packages/web/dist (copie a pasta inteira)
+npm run build      # gera docs/ (copie a pasta inteira)
 ```
 
-No GitHub Pages (sem GitHub Actions), a interface fica no branch `gh-pages`, que
-guarda só o conteúdo do `dist`:
+A pasta `docs/` vai no git e é o site do GitHub Pages (Settings → Pages → Deploy
+from a branch → `main` / `/docs`). Depois de mudar a interface, o gerador ou o
+runtime, rode o build e faça o commit junto:
 
 ```bash
-npm run pages      # confere: testa, monta o dist e serve só ele em http://localhost:8080/formularios/
-npm run publicar   # publica: testa, monta o dist, grava no gh-pages e dá push
+npm run pages      # testa, monta docs/ e serve só ela em http://localhost:8080/formularios/
+git add -A && git commit -m "…" && git push
 ```
-
-O `publicar` exige tudo commitado (o site corresponde a um commit do código) e não
-mexe no branch atual. No GitHub: Settings → Pages → Deploy from a branch →
-`gh-pages` / `(root)`.
 
 ## CLI em lote
 
